@@ -180,9 +180,12 @@ bacteria_asv_abun_genus_sum$genus[which(bacteria_genus_total < 1)] <- "Other"
 
 #Now melt this table
 bacteria_asv_abun_relab_genus_sum_melt <- melt(bacteria_asv_abun_genus_sum)
-#Change sample names to be meaningful 
+#Join in meta_data and change sample names 
+bacteria_meta <- bacteria_meta %>% mutate(variable=as.character(rownames(bacteria_meta)))
+bacteria_asv_abun_relab_genus_sum_melt <-  bacteria_asv_abun_relab_genus_sum_melt %>% inner_join(bacteria_meta)
+bacteria_asv_abun_relab_genus_sum_melt <- bacteria_asv_abun_relab_genus_sum_melt %>% mutate(sample_name=paste(group, variable, sep=" "))
 
-#get custoom colour palette
+#get custom colour palette
 colour_count = length(unique(bacteria_asv_abun_relab_genus_sum_melt$genus))
 my_palette = colorRampPalette(brewer.pal(8, "Set1"))(colour_count)
 my_palette[colour_count] <- "darkgrey"
@@ -191,8 +194,12 @@ my_palette[colour_count] <- "darkgrey"
 
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$genus, bacteria_asv_abun_relab_genus_sum_melt$value, sum)
 
+#reorder samples based on group
+
+bacteria_asv_abun_relab_genus_sum_melt$variable <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$variable, bacteria_asv_abun_relab_genus_sum_melt$group)
+
 #plot
-bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
+bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=sample_name, y=value, fill=genus)) +
   geom_bar(stat="identity") +
   theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
