@@ -69,12 +69,12 @@ UNITE_qiime2_taxa_breakdown <- function(taxa_in) {
     
   }
   
-  taxa_in$kingdom <- gsub(";D_1__.*$", "", taxa_in$species)
-  taxa_in$phylum <- gsub(";D_2__.*$", "", taxa_in$species)
-  taxa_in$class <- gsub(";D_3__.*$", "", taxa_in$species)
-  taxa_in$order <- gsub(";D_4__.*$", "", taxa_in$species)
-  taxa_in$family <- gsub(";D_5__.*$", "", taxa_in$species)
-  taxa_in$genus <- gsub(";D_6__.*$", "", taxa_in$species)
+  taxa_in$kingdom <- gsub(";p__.*$", "", taxa_in$species)
+  taxa_in$phylum <- gsub(";c__.*$", "", taxa_in$species)
+  taxa_in$class <- gsub(";o__.*$", "", taxa_in$species)
+  taxa_in$order <- gsub(";f__.*$", "", taxa_in$species)
+  taxa_in$family <- gsub(";g__.*$", "", taxa_in$species)
+  taxa_in$genus <- gsub(";s__.*$", "", taxa_in$species)
   
   return(taxa_in)
   
