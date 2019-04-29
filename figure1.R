@@ -17,8 +17,8 @@ rm(list=ls(all=TRUE))
 library("VennDiagram")
 
 # Note that these two lines are specific to Vulcan:
-setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
-source("/home/gavin/github_repos/root_depth/root_depth_project_functions.R")
+#setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
+#source("/home/gavin/github_repos/root_depth/root_depth_project_functions.R")
 #Specific to Zoë's computer
 source("root_depth_project_functions.R")
 
@@ -78,13 +78,13 @@ bacteria_venn <- draw.triple.venn(area1=bacteria_root_grape_genus_count,
 
 # Read in files and determine genera overlapping in cover, soil, and root for fungi datasets.
 
-rm(list=ls(all=TRUE))
+#rm(list=ls(all=TRUE))
 
 library("VennDiagram")
 
 # Note that these two lines are specific to Vulcan:
-setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
-source("/home/gavin/github_repos/root_depth/root_depth_project_functions.R")
+#setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
+#source("/home/gavin/github_repos/root_depth/root_depth_project_functions.R")
 #Specific to Zoë's computer
 source("root_depth_project_functions.R")
 
@@ -215,10 +215,71 @@ library(reshape2)
 library(tidyverse)
 library(RColorBrewer)
 
+fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
+                         header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
+
+fungi_meta$group <- fungi_meta$tissue
+fungi_meta$group[which(fungi_meta$species == "cover_crop")] <- "root (cover)"
+
+fungi_ASVs <- read.table("fungi/dada2_output_exported/feature-table_w_tax.txt",
+                         header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
+
+fungi_ASVs <- fungi_ASVs[, -which(colnames(fungi_ASVs) == "taxonomy")]
+
+fungi_taxa <- read.table("fungi/taxa/taxonomy.tsv",
+                         header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
+
+# Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
+fungi_taxa_breakdown <- UNITE_qiime2_taxa_breakdown(fungi_taxa)
+
+#Convert to relative abundance (i.e. sum to 100%) - the "sweep" function is helpful for this.
+fungi_asv_abun <- data.frame(sweep(fungi_ASVs, 2, colSums(fungi_ASVs), '/')) * 100
+
+#Next aggregate ASV abundances by genus.
+
+fungi_asv_abun$genus <- fungi_taxa_breakdown[rownames(fungi_asv_abun), "genus"]
+fungi_asv_abun_genus_sum <- aggregate(. ~ genus, data=fungi_asv_abun, FUN=sum)
+
+#We need to identify rare genera and collapse them into the "Other" category. I set a cutoff of 12%
+
+fungi_genus_total <- rowSums(fungi_asv_abun_genus_sum[, 2:ncol(fungi_asv_abun_genus_sum)] > 12)
+fungi_asv_abun_genus_sum$genus[which(fungi_genus_total < 1)] <- "Other"
+
+#Now melt this table
+fungi_asv_abun_relab_genus_sum_melt <- melt(fungi_asv_abun_genus_sum)
+#Join in meta_data and change sample names 
+fungi_meta <- fungi_meta %>% mutate(variable=as.character(rownames(fungi_meta)))
+fungi_asv_abun_relab_genus_sum_melt <-  fungi_asv_abun_relab_genus_sum_melt %>% inner_join(fungi_meta)
+fungi_asv_abun_relab_genus_sum_melt <- fungi_asv_abun_relab_genus_sum_melt %>% mutate(sample_name=paste(group, variable, sep=" "))
+
+#get custom colour palette
+colour_count = length(unique(fungi_asv_abun_relab_genus_sum_melt$genus))
+my_palette = colorRampPalette(brewer.pal(8, "Set1"))(colour_count)
+my_palette[colour_count-1] <- "darkgrey"
+
+#reorder genus based on abudance (low to high, across all samples)
+
+fungi_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(fungi_asv_abun_relab_genus_sum_melt$genus, fungi_asv_abun_relab_genus_sum_melt$value, sum)
+
+#reorder samples based on group
+
+fungi_asv_abun_relab_genus_sum_melt$variable <- fct_reorder(fungi_asv_abun_relab_genus_sum_melt$variable, fungi_asv_abun_relab_genus_sum_melt$group)
+
+#plot
+fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=sample_name, y=value, fill=genus)) +
+  geom_bar(stat="identity") +
+  theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  ylab("Relative Abundance (fungi)") +
+  xlab("Sample") +
+  theme(legend.position="bottom", legend.key.size = unit(0.3, "cm"), legend.title=element_blank(),legend.text=element_text(size=3.5)) +
+  guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
+  scale_fill_manual(values = my_palette) +  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ###Figure 1####
 library(extrafont)
 require(cowplot)
 pdf("figure1.pdf", width=15, height=8,family="Arial")
-plot_grid(grobTree(bacteria_venn),bacteria_stacked, grobTree(fungi_venn), nrow=2, labels="AUTO", rel_widths = c(0.8, 2,0.8))
+plot_grid(grobTree(bacteria_venn),bacteria_stacked, grobTree(fungi_venn),fungi_stacked, nrow=2, labels="AUTO", rel_widths = c(0.8, 2,0.8,2))
 dev.off()
