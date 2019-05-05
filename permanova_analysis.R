@@ -51,12 +51,12 @@ permanova_fungi
 # 
 # Terms added sequentially (first to last)
 # 
-#             Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)  
-# rootstock   1   0.13270 0.13270 0.96585 0.08081  0.369  
-# root_depth  2   0.54766 0.27383 1.99308 0.33351  0.020 *
-#   Residuals   7   0.96174 0.13739         0.58568         
-# Total      10   1.64210                 1.00000         
+#            Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)   
+# rootstock   2    0.7548 0.37739  2.5484 0.22260  0.002 **
+# root_depth  2    0.4147 0.20733  1.4001 0.12229  0.119   
+# Residuals  15    2.2213 0.14809         0.65511          
+# Total      19    3.3907                 1.00000          
 # ---
 #   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-#Root depth is a significant fator (R2=0.33351, p=0.020) but rootstock is not for fungal microbiome. 
+#Rootstock is a significant fator (R2=0.22260, p=0.002) but root depth is not for fungal microbiome. 
