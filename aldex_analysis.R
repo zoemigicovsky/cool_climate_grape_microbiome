@@ -72,6 +72,7 @@ library(tidyverse)
 library(ggbeeswarm)
 library(ggthemes)
 library(scales)
+library(extrafont)
 color_palette <- colorblind_pal()(8)[2:4]
 bacteria_asv_abun_rootstock <- bacteria_asv_abun_rootstock %>% gather(key="sample", value="relative_abun", -genus)
 #Join with metadata 
@@ -82,9 +83,13 @@ bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock %>% left_join(ba
 bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock_meta %>% mutate(genus_name = gsub("D_0__Bacteria;D_1__","",genus))
 
 #Plot distributions for genera that differ significantly 
-bacteria_asv_abun_rootstock_meta %>% ggplot(aes(x=rootstock, y=relative_abun, fill=rootstock)) + geom_boxplot() + theme_bw()+theme(legend.position = "none") + facet_wrap(~genus_name, scales = "free")
 
-bacteria_asv_abun_rootstock_meta %>% ggplot(aes(x=rootstock, y=relative_abun)) + geom_quasirandom(alpha=0.6, stroke=0, size=2) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "none") +  theme(axis.text.x = element_text(angle = 45, hjust = 1, color="black"),axis.text.y = element_text(color="black"))+ scale_fill_manual(values = color_palette)
+#rename rootstocks for plotting
+bacteria_asv_abun_rootstock_meta <-  bacteria_asv_abun_rootstock_meta %>% mutate(rootstock=str_replace(rootstock, "new_york_muscat", "Ungrafted"), rootstock=str_replace(rootstock, "c3309", "3309 C"),rootstock=str_replace(rootstock, "riparia_gloire", "Riparia Gloire"))
+       
+pdf("rootstock_bacteria_distributions.pdf", width=6.5, height=8,family="Arial")
+bacteria_asv_abun_rootstock_meta %>% ggplot(aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(alpha=0.7, stroke=0, size=2) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "none")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
+dev.off()
 
 ###FUNGI#### 
 fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
