@@ -11,7 +11,7 @@ source("root_depth_project_functions.R")
 bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
                             header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
-#looad in grape root only ASVs
+#load in grape root only ASVs
 bacteria_ASVs <- read.table("bacteria/dada2_output_exported_grape/feature-table_w_tax.txt",
                             header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
