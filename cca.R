@@ -11,10 +11,6 @@ setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
 soil_data <- read.table("/home/gavin/github_repos/root_depth/soil_dat.tsv",
                         header=T, sep="\t", comment.char="", stringsAsFactors = FALSE, quote="", row.names=1)
 
-# Only retain representative features from each cluster.
-soil_data <- soil_data[, c("fe", "al", "mg_sat", "na", "cu", "ca")]
-
-
 ### First process 16S data.
 # Read in BIOM.
 biom_16S <- read.table("bacteria/dada2_output_exported/feature-table_w_tax.txt", header=T, sep="\t", row.names=1, skip=1, comment.char="")
@@ -35,8 +31,6 @@ map_16S <- map_16S[overlapping_samples_16S, ]
 ### Transpose OTU table and convert to rel. abun.
 biom_16S_t <- data.frame(t(biom_16S), check.names=FALSE)
 biom_16S_t_relabun <- data.frame(sweep(biom_16S_t, 1, rowSums(biom_16S_t), '/'), check.names=FALSE) * 100
-
-### Need to cluster soil data based on Spearman correlations and collapse to a small number of variables.
 
 cca_16S_full <- cca(biom_16S_t_relabun ~ ., soil_16S)
 
@@ -59,7 +53,7 @@ cca_16S_plot <- ggvegan:::autoplot.cca(cca_16S_fortify, layers=c("biplot")) +
                                        scale_shape_discrete(name = "Depth") +
                                        ggtitle("Bacteria (16S)") +
                                        theme_bw() +
-                                       theme(plot.title = element_text(face="bold")) +
+                                       theme(plot.title = element_text(face="bold")) #+
                                        #guides(colour=FALSE, shape=FALSE)
 
 ### Do same for ITS data.
@@ -105,7 +99,7 @@ cca_ITS_plot <- ggvegan:::autoplot.cca(cca_ITS_fortify, layers=c("biplot")) +
   scale_shape_discrete(name = "Depth") +
   ggtitle("Fungi (ITS)") +
   theme_bw() +
-  theme(plot.title = element_text(face="bold")) +
+  theme(plot.title = element_text(face="bold")) #+
   #guides(colour=FALSE, shape=FALSE)
 
 ### Plot figure - I couldn't get this looking pretty so left it for now.
