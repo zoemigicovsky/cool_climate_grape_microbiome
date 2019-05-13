@@ -19,7 +19,6 @@ library("VennDiagram")
 # Note that these two lines are specific to Vulcan:
 #setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
 #source("/home/gavin/github_repos/root_depth/root_depth_project_functions.R")
-#Specific to Zoë's computer
 source("root_depth_project_functions.R")
 
 bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
@@ -72,8 +71,7 @@ bacteria_venn <- draw.triple.venn(area1=bacteria_root_grape_genus_count,
                  n123 = bacteria_all3_genus_count,
                  category = c("Grape roots", "Cover crop roots", "Grape soil"),
                  scaled=TRUE,
-                 fill = c("blue", "red", "yellow"))
-                 
+                 fill = c( "#009E73","#E69F00","#56B4E9"))
 ###Venn diagram - Fungi####
 
 # Read in files and determine genera overlapping in cover, soil, and root for fungi datasets.
@@ -141,7 +139,7 @@ fungi_venn <- draw.triple.venn(area1=fungi_root_grape_genus_count,
                  n123 = fungi_all3_genus_count,
                  category = c("Grape roots", "Cover crop roots", "Grape soil"),
                  scaled=TRUE,
-                 fill = c("blue", "red", "yellow"))
+                 fill = c( "#009E73","#E69F00","#56B4E9"))
 
 
 ###Stacked bar - Bacteria####
@@ -173,38 +171,48 @@ bacteria_asv_abun <- data.frame(sweep(bacteria_ASVs, 2, colSums(bacteria_ASVs), 
 bacteria_asv_abun$genus <- bacteria_taxa_breakdown[rownames(bacteria_asv_abun), "genus"]
 bacteria_asv_abun_genus_sum <- aggregate(. ~ genus, data=bacteria_asv_abun, FUN=sum)
 
-#We need to identify rare genera and collapse them into the "Other" category. I set a cutoff of 7%, because 5% gave 32 genera remaining and that is too many to plot
+#We need to identify rare genera and collapse them into the "Other" category. 
 
-bacteria_genus_total <- rowSums(bacteria_asv_abun_genus_sum[, 2:ncol(bacteria_asv_abun_genus_sum)] > 7)
-bacteria_asv_abun_genus_sum$genus[which(bacteria_genus_total < 1)] <- "Other"
+#Reorder based on abundance
+bacteria_asv_abun_genus_sum <- bacteria_asv_abun_genus_sum[order(rowSums(bacteria_asv_abun_genus_sum[,2:ncol(bacteria_asv_abun_genus_sum)]),decreasing=T),]
+#Keep the top 15 but rename everything else starting at the 16th most abundant as Other 
+bacteria_asv_abun_genus_sum[16:nrow(bacteria_asv_abun_genus_sum),1] <- "Other"
 
 #Now melt this table
 bacteria_asv_abun_relab_genus_sum_melt <- melt(bacteria_asv_abun_genus_sum)
 #Join in meta_data and change sample names 
 bacteria_meta <- bacteria_meta %>% mutate(variable=as.character(rownames(bacteria_meta)))
 bacteria_asv_abun_relab_genus_sum_melt <-  bacteria_asv_abun_relab_genus_sum_melt %>% inner_join(bacteria_meta)
-bacteria_asv_abun_relab_genus_sum_melt <- bacteria_asv_abun_relab_genus_sum_melt %>% mutate(sample_name=paste(group, variable, sep=" "))
-
-#get custom colour palette
-colour_count = length(unique(bacteria_asv_abun_relab_genus_sum_melt$genus))
-my_palette = colorRampPalette(brewer.pal(8, "Set1"))(colour_count)
-my_palette[colour_count] <- "darkgrey"
 
 #reorder genus based on abudance (low to high, across all samples)
 
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$genus, bacteria_asv_abun_relab_genus_sum_melt$value, sum)
 
-#reorder samples based on group
+bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(bacteria_asv_abun_relab_genus_sum_melt$genus, "Other", after = Inf)
 
-bacteria_asv_abun_relab_genus_sum_melt$variable <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$variable, bacteria_asv_abun_relab_genus_sum_melt$group)
+#reorder samples based on group
+bacteria_asv_abun_relab_genus_sum_melt$group <- gsub("root (cover)", "cover",bacteria_asv_abun_relab_genus_sum_melt$group, fixed=T)
+
+bacteria_asv_abun_relab_genus_sum_melt$variable  <- fct_relevel(bacteria_asv_abun_relab_genus_sum_melt$variable ,"e98", "e99")
+
+bacteria_asv_abun_relab_genus_sum_melt$variable  <- fct_relevel(bacteria_asv_abun_relab_genus_sum_melt$variable ,"e104", "e105","e106", "e107","e108", "e109", "e110","e111", "e112", after= Inf)
+
+
+#get custom colour palette
+colour_count = length(unique(bacteria_asv_abun_relab_genus_sum_melt$genus))
+cols <- inlmisc::GetColors(n = 16, scheme = "discrete rainbow")
+cols[colour_count] <- "darkgrey"
+my_palette <- as.vector(cols[1:16])
+
 
 #plot
-bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=sample_name, y=value, fill=genus)) +
+bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
   geom_bar(stat="identity") +
   theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("Relative Abundance (Bacteria)") +
   xlab("Sample") +
+  ggtitle("Bacteria")+
   theme(legend.position="bottom", legend.key.size = unit(0.3, "cm"), legend.title=element_blank(),legend.text=element_text(size=3.5)) +
   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
   scale_fill_manual(values = my_palette) +  
@@ -240,38 +248,48 @@ fungi_asv_abun <- data.frame(sweep(fungi_ASVs, 2, colSums(fungi_ASVs), '/')) * 1
 fungi_asv_abun$genus <- fungi_taxa_breakdown[rownames(fungi_asv_abun), "genus"]
 fungi_asv_abun_genus_sum <- aggregate(. ~ genus, data=fungi_asv_abun, FUN=sum)
 
-#We need to identify rare genera and collapse them into the "Other" category. I set a cutoff of 12%
+#We need to identify rare genera and collapse them into the "Other" category. 
 
-fungi_genus_total <- rowSums(fungi_asv_abun_genus_sum[, 2:ncol(fungi_asv_abun_genus_sum)] > 12)
-fungi_asv_abun_genus_sum$genus[which(fungi_genus_total < 1)] <- "Other"
+#Reorder based on abundance
+fungi_asv_abun_genus_sum <- fungi_asv_abun_genus_sum[order(rowSums(fungi_asv_abun_genus_sum[,2:ncol(fungi_asv_abun_genus_sum)]),decreasing=T),]
+#Keep the top 15 but rename everything else starting at the 16th most abundant as Other 
+fungi_asv_abun_genus_sum[16:nrow(fungi_asv_abun_genus_sum),1] <- "Other"
 
 #Now melt this table
 fungi_asv_abun_relab_genus_sum_melt <- melt(fungi_asv_abun_genus_sum)
 #Join in meta_data and change sample names 
 fungi_meta <- fungi_meta %>% mutate(variable=as.character(rownames(fungi_meta)))
 fungi_asv_abun_relab_genus_sum_melt <-  fungi_asv_abun_relab_genus_sum_melt %>% inner_join(fungi_meta)
-fungi_asv_abun_relab_genus_sum_melt <- fungi_asv_abun_relab_genus_sum_melt %>% mutate(sample_name=paste(group, variable, sep=" "))
-
-#get custom colour palette
-colour_count = length(unique(fungi_asv_abun_relab_genus_sum_melt$genus))
-my_palette = colorRampPalette(brewer.pal(8, "Set1"))(colour_count)
-my_palette[colour_count-1] <- "darkgrey"
 
 #reorder genus based on abudance (low to high, across all samples)
 
 fungi_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(fungi_asv_abun_relab_genus_sum_melt$genus, fungi_asv_abun_relab_genus_sum_melt$value, sum)
 
+#Put Other last
+fungi_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(fungi_asv_abun_relab_genus_sum_melt$genus, "Other", after = Inf)
+
 #reorder samples based on group
+fungi_asv_abun_relab_genus_sum_melt$group <-  gsub("root (cover)", "cover",fungi_asv_abun_relab_genus_sum_melt$group, fixed=T)
 
 fungi_asv_abun_relab_genus_sum_melt$variable <- fct_reorder(fungi_asv_abun_relab_genus_sum_melt$variable, fungi_asv_abun_relab_genus_sum_melt$group)
 
+fungi_asv_abun_relab_genus_sum_melt$variable  <- fct_relevel(fungi_asv_abun_relab_genus_sum_melt$variable ,"e98", "e99")
+
+#get custom colour palette
+colour_count = length(unique(fungi_asv_abun_relab_genus_sum_melt$genus))
+cols <- inlmisc::GetColors(n = 16, scheme = "discrete rainbow")
+cols[colour_count] <- "darkgrey"
+my_palette <- as.vector(cols[1:16])
+
+
 #plot
-fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=sample_name, y=value, fill=genus)) +
+fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
   geom_bar(stat="identity") +
   theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("Relative Abundance (fungi)") +
   xlab("Sample") +
+  ggtitle("Fungi")+
   theme(legend.position="bottom", legend.key.size = unit(0.3, "cm"), legend.title=element_blank(),legend.text=element_text(size=3.5)) +
   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
   scale_fill_manual(values = my_palette) +  
@@ -280,6 +298,9 @@ fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=sample_name, 
 ###Figure 1####
 library(extrafont)
 require(cowplot)
-pdf("figure1.pdf", width=15, height=8,family="Arial")
-plot_grid(grobTree(bacteria_venn),bacteria_stacked, grobTree(fungi_venn),fungi_stacked, nrow=2, labels="AUTO", rel_widths = c(0.8, 2,0.8,2))
+pdf("figure1.pdf", width=8, height=13,family="Arial")
+first_row = plot_grid(grobTree(bacteria_venn),grobTree(fungi_venn), labels = c('A', 'B'))
+second_row = plot_grid(bacteria_stacked, labels = c('C'), nrow = 1)
+third_row = plot_grid(fungi_stacked, labels = c('D'), nrow = 1)
+plot_grid(first_row, second_row, third_row, labels=c('', '', ''), ncol=1)
 dev.off()
