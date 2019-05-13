@@ -73,7 +73,7 @@ bacteria_asv_abun <- data.frame(sweep(bacteria_ASVs, 2, colSums(bacteria_ASVs), 
 bacteria_asv_abun$genus <- bacteria_taxa_breakdown[rownames(bacteria_asv_abun), "genus"]
 bacteria_asv_abun_genus_sum <- aggregate(. ~ genus, data=bacteria_asv_abun, FUN=sum)
 
-#Get the list and data for the 15 most abundant grape genera are
+#Get the list and data for the 10 most abundant grape genera are
 
 #Reorder based on abundance
 bacteria_asv_abun_genus_sum <- bacteria_asv_abun_genus_sum[order(rowSums(bacteria_asv_abun_genus_sum[,2:ncol(bacteria_asv_abun_genus_sum)]),decreasing=T),]
