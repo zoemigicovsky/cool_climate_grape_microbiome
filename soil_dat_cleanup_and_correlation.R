@@ -189,7 +189,7 @@ fungi_asv_abun <- data.frame(sweep(fungi_ASVs, 2, colSums(fungi_ASVs), '/')) * 1
 fungi_asv_abun$genus <- fungi_taxa_breakdown[rownames(fungi_asv_abun), "genus"]
 fungi_asv_abun_genus_sum <- aggregate(. ~ genus, data=fungi_asv_abun, FUN=sum)
 
-#Get the list and data for the 15 most abundant grape genera are
+#Get the list and data for the 10 most abundant grape genera are
 
 #Reorder based on abundance
 fungi_asv_abun_genus_sum <- fungi_asv_abun_genus_sum[order(rowSums(fungi_asv_abun_genus_sum[,2:ncol(fungi_asv_abun_genus_sum)]),decreasing=T),]

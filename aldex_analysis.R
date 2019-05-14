@@ -50,12 +50,12 @@ root_depth_aldex_kw <- aldex.kw(root_depth_aldex, verbose=T)
 write.table(root_depth_aldex_kw, "bacteria_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = T)
 
 rootstock_aldex <- aldex.clr(bacteria_asv_aldex, rootstock,mc.samples = 128, verbose=T)
-rootstock_aldex_hw <- aldex.kw(rootstock_aldex, verbose=T)
-write.table(rootstock_aldex_hw, "bacteria_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = T)
+rootstock_aldex_kw <- aldex.kw(rootstock_aldex, verbose=T)
+write.table(rootstock_aldex_kw, "bacteria_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = T)
 
 root_depth_aldex_kw_sig <- root_depth_aldex_kw[root_depth_aldex_kw[,"glm.eBH"] <=0.05,]
 #In this case there would be none that are significant across root depths
-rootstock_aldex_hw_sig <- rootstock_aldex_hw[rootstock_aldex_hw[,"glm.eBH"] <=0.05,]
+rootstock_aldex_kw_sig <- rootstock_aldex_kw[rootstock_aldex_kw[,"glm.eBH"] <=0.05,]
 #9 that are significant across rootstocks
 write.table(rootstock_aldex_hw_sig, "bacteria_rootstock_aldex_kw_sig.txt", sep="\t", quote=F, row.names = T)
 
@@ -134,10 +134,10 @@ root_depth_aldex_kw <- aldex.kw(root_depth_aldex, verbose=T)
 write.table(root_depth_aldex_kw, "fungi_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = T)
 
 rootstock_aldex <- aldex.clr(fungi_asv_aldex, rootstock,mc.samples = 128, verbose=T)
-rootstock_aldex_hw <- aldex.kw(rootstock_aldex, verbose=T)
-write.table(rootstock_aldex_hw, "fungi_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = T)
+rootstock_aldex_kw <- aldex.kw(rootstock_aldex, verbose=T)
+write.table(rootstock_aldex_kw, "fungi_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = T)
 
 root_depth_aldex_kw_sig <- root_depth_aldex_kw[root_depth_aldex_kw[,"glm.eBH"] <=0.05,]
 #In this case there would be none that are significant across root depths
-rootstock_aldex_hw_sig <- rootstock_aldex_hw[rootstock_aldex_hw[,"glm.eBH"] <=0.05,]
+rootstock_aldex_kw_sig <- rootstock_aldex_kw[rootstock_aldex_kw[,"glm.eBH"] <=0.05,]
 #Based on glm.eBH there are no significant genera for fungi 
