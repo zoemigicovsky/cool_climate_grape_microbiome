@@ -1,5 +1,6 @@
 library(readxl)
 library(tidyverse)
+library(broom)
 
 soil_dat <- read_excel("(2018) NYM rootstock depth trial all data updated.xlsx", skip = 4) %>% select("...3", pH, "Organic Matter":"Mg...14", "Na...19":H)
 
@@ -39,9 +40,60 @@ spearman_results <- spearman_results[-1,]
 spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
 
 #Multiple p-value by number of tests
-spearman_results$p.value <- p.adjust(spearman_results$p.value, method = p.adjust.methods, n = length(spearman_results$p.value))
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "bacteria_soil_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(spearman_results, "bacteria_soil_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Faith
+alpha_diversity <- read_tsv("bacteria/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+soil_bacteria <- soil_dat %>% rename(sample_id=id) %>% inner_join(alpha_diversity) %>% select(faith_pd, ph:h_sat)
+
+#Run correlations with soil_bacteria$faith_pd
+soil_cor <- apply(soil_bacteria[, -1], 2, cor.test, soil_bacteria$faith_pd, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(soil_cor)){
+  spear_test <- tidy(soil_cor[[i]]) %>% mutate(pheno=names(soil_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "bacteria_soil_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Evenness
+
+alpha_diversity <- read_tsv("bacteria/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+soil_bacteria <- soil_dat %>% rename(sample_id=id) %>% inner_join(alpha_diversity) %>% select(pielou_e, ph:h_sat)
+
+#Run correlations with soil_bacteria$faith_pd
+soil_cor <- apply(soil_bacteria[, -1], 2, cor.test, soil_bacteria$pielou_e, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(soil_cor)){
+  spear_test <- tidy(soil_cor[[i]]) %>% mutate(pheno=names(soil_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "bacteria_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Now do the same thing but with the main genera 
 
@@ -122,10 +174,9 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 
 #Multiple p-value by number of tests
 
-spearman_results$p.value <- p.adjust(spearman_results$p.value, method = p.adjust.methods, n = length(spearman_results$p.value))
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
 write.table(spearman_results, "bacteria_genus_soil_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
 
 #FUNGI ANALYSIS 
 
@@ -135,7 +186,6 @@ library(broom)
 library(broom)
 
 soil_dat <- read_tsv("soil_dat.tsv")
-
 #Alpha diversity
 
 alpha_diversity <- read_tsv("fungi/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
@@ -158,9 +208,60 @@ spearman_results <- spearman_results[-1,]
 spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
 
 #Multiple p-value by number of tests
-spearman_results$p.value <- p.adjust(spearman_results$p.value, method = p.adjust.methods, n = length(spearman_results$p.value))
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "fungi_soil_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(spearman_results, "fungi_soil_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Faith
+alpha_diversity <- read_tsv("fungi/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+soil_fungi <- soil_dat %>% rename(sample_id=id) %>% inner_join(alpha_diversity) %>% select(faith_pd, ph:h_sat)
+
+#Run correlations with soil_fungi$faith_pd
+soil_cor <- apply(soil_fungi[, -1], 2, cor.test, soil_fungi$faith_pd, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(soil_cor)){
+  spear_test <- tidy(soil_cor[[i]]) %>% mutate(pheno=names(soil_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "fungi_soil_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Evenness
+
+alpha_diversity <- read_tsv("fungi/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+soil_fungi <- soil_dat %>% rename(sample_id=id) %>% inner_join(alpha_diversity) %>% select(pielou_e, ph:h_sat)
+
+#Run correlations with soil_fungi$faith_pd
+soil_cor <- apply(soil_fungi[, -1], 2, cor.test, soil_fungi$pielou_e, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(soil_cor)){
+  spear_test <- tidy(soil_cor[[i]]) %>% mutate(pheno=names(soil_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "fungi_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Now do the same thing but with the main genera 
 
@@ -236,11 +337,13 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 
 #Multiple p-value by number of tests
 
-spearman_results$p.value <- p.adjust(spearman_results$p.value, method = p.adjust.methods, n = length(spearman_results$p.value))
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-#estimate    p.value pheno                                                                                  fungi
-# 0.7366645 0.04217598    na k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
-# 0.7509783 0.02715240    mn k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
+spearman_results %>% filter(p.value <= 0.05)
+#    estimate    p.value  pheno                                                                                fungi
+#  0.7366645 0.02119396    na k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
+# -0.7103334 0.02993484    fe k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
+#  0.7509783 0.02119396    mn k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
 
 write.table(spearman_results, "fungi_genus_soil_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
