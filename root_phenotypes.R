@@ -4,66 +4,166 @@ library(broom)
 
 root_phenos <- read_tsv("root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
-#Alpha diversity
+#Alpha diversity - richness 
 
 alpha_diversity <- read_tsv("bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
 root_phenos_bacteria <- root_phenos %>% inner_join(alpha_diversity)
-root_phenos_bacteria <- root_phenos_bacteria %>% rename(trunk_diameter='trunk_diameter_at ground')
+root_phenos_bacteria <- root_phenos_bacteria %>% rename(trunk_diameter='trunk_diameter_at ground') %>% select(observed_otus, trunk_diameter:total_root_mass)
 
-#Cannot compute exact p-values with ties, but they aren't significant anyway (even before multiple testing correction so it doesn't matter)
-tidy(cor.test(root_phenos_bacteria$observed_otus,root_phenos_bacteria$trunk_diameter, method="spearman"))
-#estimate statistic p.value method                          alternative
-# -0.164     7619.   0.354 Spearman's rank correlation rho two.sided
+#Run correlations with soil_fungi$observed_otus
+root_cor <- apply(root_phenos_bacteria[, -1], 2, cor.test, root_phenos_bacteria$observed_otus, method="spearman")
 
-tidy(cor.test(root_phenos_bacteria$observed_otus,root_phenos_bacteria$sec_root_mass, method="spearman"))
-#estimate statistic p.value method                          alternative
-#0.0587     6161.   0.742 Spearman's rank correlation rho two.sided  
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
 
-tidy(cor.test(root_phenos_bacteria$observed_otus,root_phenos_bacteria$tert_root_mass, method="spearman"))
-#estimate statistic p.value method                          alternative
-#-0.0335     6764.   0.851 Spearman's rank correlation rho two.sided 
+for(i in 1:length(root_cor)){
+  spear_test <- tidy(root_cor[[i]]) %>% mutate(pheno=names(root_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
 
-tidy(cor.test(root_phenos_bacteria$observed_otus,root_phenos_bacteria$sec_tert_root_mass, method="spearman")) 
-#estimate statistic p.value method                          alternative
-#0.0142     6452.   0.936 Spearman's rank correlation rho two.sided  
+#Multiple p-value by number of tests 
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-tidy(cor.test(root_phenos_bacteria$observed_otus,root_phenos_bacteria$total_root_mass, method="spearman"))
-#estimate statistic p.value method                          alternative
-# -0.0900     7134.   0.613 Spearman's rank correlation rho two.sided  
+write.table(spearman_results, "bacteria_root_pheno_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Evenness 
+alpha_diversity <- read_tsv("bacteria/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+root_phenos_bacteria <- root_phenos %>% inner_join(alpha_diversity)
+root_phenos_bacteria <- root_phenos_bacteria %>% rename(trunk_diameter='trunk_diameter_at ground') %>% select(pielou_e, trunk_diameter:total_root_mass)
+
+#Run correlations with soil_fungi$observed_otus
+root_cor <- apply(root_phenos_bacteria[, -1], 2, cor.test, root_phenos_bacteria$pielou_e, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(root_cor)){
+  spear_test <- tidy(root_cor[[i]]) %>% mutate(pheno=names(root_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests 
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "bacteria_root_pheno_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Faiths 
+alpha_diversity <- read_tsv("bacteria/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+root_phenos_bacteria <- root_phenos %>% inner_join(alpha_diversity)
+root_phenos_bacteria <- root_phenos_bacteria %>% rename(trunk_diameter='trunk_diameter_at ground') %>% select(faith_pd, trunk_diameter:total_root_mass)
+
+#Run correlations with soil_fungi$observed_otus
+root_cor <- apply(root_phenos_bacteria[, -1], 2, cor.test, root_phenos_bacteria$faith_pd, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(root_cor)){
+  spear_test <- tidy(root_cor[[i]]) %>% mutate(pheno=names(root_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests 
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "bacteria_root_pheno_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
 
 ###now do the same thing with fungi
 
 root_phenos <- read_tsv("root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
-#Alpha diversity
+#Alpha diversity - richness 
 
 alpha_diversity <- read_tsv("fungi/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
 root_phenos_fungi <- root_phenos %>% inner_join(alpha_diversity)
-root_phenos_fungi <- root_phenos_fungi %>% rename(trunk_diameter='trunk_diameter_at ground')
+root_phenos_fungi <- root_phenos_fungi %>% rename(trunk_diameter='trunk_diameter_at ground') %>% select(observed_otus, trunk_diameter:total_root_mass)
 
-#Cannot compute exact p-values with ties, but they aren't significant anyway (even before multiple testing correction so it doesn't matter)
-tidy(cor.test(root_phenos_fungi$observed_otus,root_phenos_fungi$trunk_diameter, method="spearman"))
-#estimate statistic p.value method                          alternative
-# -0.264     1681.   0.261 Spearman's rank correlation rho two.sided  
+#Run correlations with soil_fungi$observed_otus
+root_cor <- apply(root_phenos_fungi[, -1], 2, cor.test, root_phenos_fungi$observed_otus, method="spearman")
 
-tidy(cor.test(root_phenos_fungi$observed_otus,root_phenos_fungi$sec_root_mass, method="spearman"))
-#estimate statistic p.value method                          alternative
-# 0.0830     1220.   0.728 Spearman's rank correlation rho two.sided  
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
 
-tidy(cor.test(root_phenos_fungi$observed_otus,root_phenos_fungi$tert_root_mass, method="spearman"))
-#estimate statistic p.value method                          alternative
-#0.144     1138.   0.544 Spearman's rank correlation rho two.sided  
+for(i in 1:length(root_cor)){
+  spear_test <- tidy(root_cor[[i]]) %>% mutate(pheno=names(root_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
 
-tidy(cor.test(root_phenos_fungi$observed_otus,root_phenos_fungi$sec_tert_root_mass, method="spearman")) 
-#estimate statistic p.value method                          alternative
-#0.106     1188.   0.655 Spearman's rank correlation rho two.sided  
+#Multiple p-value by number of tests 
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-tidy(cor.test(root_phenos_fungi$observed_otus,root_phenos_fungi$total_root_mass, method="spearman"))
-#estimate statistic p.value method                          alternative
-# 0.0144     1311.   0.952 Spearman's rank correlation rho two.sided  
+write.table(spearman_results, "fungi_root_pheno_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Evenness 
+alpha_diversity <- read_tsv("fungi/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+root_phenos_fungi <- root_phenos %>% inner_join(alpha_diversity)
+root_phenos_fungi <- root_phenos_fungi %>% rename(trunk_diameter='trunk_diameter_at ground') %>% select(pielou_e, trunk_diameter:total_root_mass)
+
+#Run correlations with soil_fungi$observed_otus
+root_cor <- apply(root_phenos_fungi[, -1], 2, cor.test, root_phenos_fungi$pielou_e, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(root_cor)){
+  spear_test <- tidy(root_cor[[i]]) %>% mutate(pheno=names(root_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests 
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "fungi_root_pheno_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Faiths 
+alpha_diversity <- read_tsv("fungi/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+
+#Reduce phenotype data down to samples with diversity metrics
+
+root_phenos_fungi <- root_phenos %>% inner_join(alpha_diversity)
+root_phenos_fungi <- root_phenos_fungi %>% rename(trunk_diameter='trunk_diameter_at ground') %>% select(faith_pd, trunk_diameter:total_root_mass)
+
+#Run correlations with soil_fungi$observed_otus
+root_cor <- apply(root_phenos_fungi[, -1], 2, cor.test, root_phenos_fungi$faith_pd, method="spearman")
+
+spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
+colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
+
+for(i in 1:length(root_cor)){
+  spear_test <- tidy(root_cor[[i]]) %>% mutate(pheno=names(root_cor)[i])
+  spearman_results <- rbind(spearman_results, spear_test)
+}
+spearman_results <- spearman_results[-1,]
+spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
+
+#Multiple p-value by number of tests 
+spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
+
+write.table(spearman_results, "fungi_root_pheno_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
