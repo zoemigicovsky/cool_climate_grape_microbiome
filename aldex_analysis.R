@@ -57,7 +57,7 @@ root_depth_aldex_kw_sig <- root_depth_aldex_kw[root_depth_aldex_kw[,"glm.eBH"] <
 #In this case there would be none that are significant across root depths
 rootstock_aldex_kw_sig <- rootstock_aldex_kw[rootstock_aldex_kw[,"glm.eBH"] <=0.05,]
 #9 that are significant across rootstocks
-write.table(rootstock_aldex_hw_sig, "bacteria_rootstock_aldex_kw_sig.txt", sep="\t", quote=F, row.names = T)
+write.table(rootstock_aldex_kw_sig, "bacteria_rootstock_aldex_kw_sig_genus.txt", sep="\t", quote=F, row.names = T)
 
 #Look at distributions for significant genera
 #Convert to relative abundances first
