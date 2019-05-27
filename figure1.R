@@ -203,10 +203,10 @@ bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variabl
         axis.text.x = element_text(angle = 45,
                                    hjust = 1,
                                    colour=bacteria_x_col),
-        axis.text.y = element_text(size=15),
-        legend.text=element_text(size=15),
-        axis.title=element_text(size=15),
-        title=element_text(size=15)) +
+        axis.text.y = element_text(size=20),
+        legend.text=element_text(size=17),
+        axis.title=element_text(size=20),
+        title=element_text(size=20)) +
   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
   scale_fill_manual(values = my_palette)
 
@@ -289,20 +289,29 @@ fungi_x_col[fungi_soil_grape_samples] <- "#56B4E9"
 #plot
 fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
   geom_bar(stat="identity") +
-  theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("Relative Abundance (%)") +
   xlab("") +
   ggtitle("Fungi")+
-  theme(legend.position="bottom", legend.key.size = unit(0.3, "cm"), legend.title=element_blank(),legend.text=element_text(size=3.5)) +
+  theme(legend.position="bottom",
+        legend.key.size = unit(1, "cm"),
+        legend.title=element_blank(),
+        axis.text.x = element_text(angle = 45,
+                                   hjust = 1,
+                                   colour=fungi_x_col),
+        axis.text.y = element_text(size=20),
+        legend.text=element_text(size=17),
+        axis.title=element_text(size=20),
+        title=element_text(size=20)) +
   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
-  scale_fill_manual(values = my_palette) +  
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, colour=fungi_x_col), legend.text=element_text(size=10))
+  scale_fill_manual(values = my_palette)
 
 ###Figure 1####
 pdf("figure1.pdf", width=8, height=13,family="Arial")
-first_row = plot_grid(grobTree(bacteria_sampletype_venn),grobTree(fungi_sampletype_venn), labels = c('A', 'B'))
-second_row = plot_grid(bacteria_stacked, labels = c('C'), nrow = 1)
-third_row = plot_grid(fungi_stacked, labels = c('D'), nrow = 1)
-plot_grid(first_row, second_row, third_row, labels=c('', '', ''), ncol=1, label_size=25)
+first_row = plot_grid(grobTree(bacteria_sampletype_venn),grobTree(fungi_sampletype_venn), labels = c('A', 'B'), label_size=25)
+second_row = plot_grid(bacteria_stacked, labels = c('C'), nrow = 1, label_size=25)
+third_row = plot_grid(fungi_stacked, labels = c('D'), nrow = 1, label_size=25)
+plot_grid(first_row, second_row, third_row, labels=c('', '', ''), ncol=1)
 dev.off()
