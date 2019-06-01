@@ -64,7 +64,7 @@ write.table(rootstock_aldex_kw_sig, "bacteria_rootstock_aldex_kw_sig_genus.txt",
 bacteria_asv_abun <- data.frame(sweep(bacteria_asv_abun_genus_sum[,2:ncol(bacteria_asv_abun_genus_sum)], 2, colSums(bacteria_asv_abun_genus_sum[,2:ncol(bacteria_asv_abun_genus_sum)]), '/')) * 100
 rownames(bacteria_asv_abun) <- bacteria_asv_abun_genus_sum[,"genus"]
 
-bacteria_asv_abun_rootstock <- bacteria_asv_abun[rownames(bacteria_asv_abun) %in% rownames(rootstock_aldex_hw_sig),]
+bacteria_asv_abun_rootstock <- bacteria_asv_abun[rownames(bacteria_asv_abun) %in% rownames(rootstock_aldex_kw_sig),]
 bacteria_asv_abun_rootstock <- cbind(rownames(bacteria_asv_abun_rootstock), bacteria_asv_abun_rootstock)
 colnames(bacteria_asv_abun_rootstock)[1] <- "genus"
 
@@ -79,6 +79,7 @@ bacteria_asv_abun_rootstock <- bacteria_asv_abun_rootstock %>% gather(key="sampl
 bacteria_meta <- cbind(rownames(bacteria_meta), bacteria_meta)
 colnames(bacteria_meta)[1] <- "sample"
 bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock %>% left_join(bacteria_meta)
+
 #get just genus name
 bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock_meta %>% mutate(genus_name = gsub("D_0__Bacteria;D_1__","",genus))
 
@@ -86,10 +87,31 @@ bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock_meta %>% mutate(
 
 #rename rootstocks for plotting
 bacteria_asv_abun_rootstock_meta <-  bacteria_asv_abun_rootstock_meta %>% mutate(rootstock=str_replace(rootstock, "new_york_muscat", "Ungrafted"), rootstock=str_replace(rootstock, "c3309", "3309 C"),rootstock=str_replace(rootstock, "riparia_gloire", "Riparia Gloire"))
-       
+
+#Include unique vine info
+
+#I'm guessing it's the "Other info" R14P10V2 info?
+bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock_meta %>% mutate(other_info=str_replace(other_info, "NYM Own Root ", ""),other_info=str_replace(other_info, "NYM 3309", ""),other_info=str_replace(other_info, "NYM Rg", ""),other_info=str_replace(other_info, "0-15cm", ""),other_info=str_replace(other_info, "15-30cm", ""),other_info=str_replace(other_info, "30-50cm", ""),other_info=str_replace(other_info, "NYM", ""),other_info=str_trim(other_info))
+
+table(bacteria_asv_abun_rootstock_meta$other_info)
+#R14P10V2 R14P10V4 R15P18V1 R15P18V2 R16P19V1 R16P19V3  R17P6V1  R17P6V4 R20P20V2 R20P20V3  R21P5V1  R21P5V3 
+#24       24       24       24       16       24       24       24       16       24       24       24 
+
 pdf("rootstock_bacteria_distributions.pdf", width=6.5, height=8,family="Arial")
 bacteria_asv_abun_rootstock_meta %>% ggplot(aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(alpha=0.7, stroke=0, size=2) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "none")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
 dev.off()
+
+pdf("rootstock_bacteria_distributions_vine.pdf", width=6.5, height=8,family="Arial")
+ggplot(bacteria_asv_abun_rootstock_meta, aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(aes(colour=other_info), stroke=0, alpha=0.7, size=3) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "bottom")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
+dev.off()
+
+cols <- inlmisc::GetColors(n = 12, scheme = "discrete rainbow")
+my_palette <- as.vector(cols[1:12])
+
+pdf("rootstock_bacteria_distributions_vine_no_boxplot.pdf", width=8, height=10,family="Arial")
+ggplot(bacteria_asv_abun_rootstock_meta, aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(aes(colour=other_info), stroke=0, alpha=0.7, size=3)  + scale_color_manual(values = my_palette) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "bottom")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
+dev.off()
+
 
 ###FUNGI#### 
 fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
