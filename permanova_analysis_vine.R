@@ -31,8 +31,9 @@ permanova_bacteria
 # ---
 #   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
+#There are fewer samples in fungi so I can just use the same metadata table
 
-fungi_meta <- read.delim("fungi/root_depth_fungi_metadata_grape.tsv", row.names=1)
+fungi_meta <- bacteria_meta
 
 fungi_bray <- read.delim("fungi/diversity_grape/bray_curtis_distance_matrix_exported/distance-matrix.tsv", header = T, row.names=1)
 
