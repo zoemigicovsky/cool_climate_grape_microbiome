@@ -44,4 +44,4 @@ da_analysis <- differentialTest(formula = ~rootstock+root_depth,
 
 da_analysis$significant_taxa
 
-plot(da_analysis2)
+plot(da_analysis)
