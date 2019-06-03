@@ -3,16 +3,8 @@ library(corncob)
 library(phyloseq)
 
 ###BACTERIA####
-bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
+bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata_grape_vine.txt",
                             header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
-#Create column for the plant id 
-bacteria_meta$sample_id <- rownames(bacteria_meta)
-
-bacteria_meta <- bacteria_meta %>% mutate(other_info=str_replace(other_info, "NYM Own Root ", ""),other_info=str_replace(other_info, "NYM 3309", ""),other_info=str_replace(other_info, "NYM Rg", ""),other_info=str_replace(other_info, "0-15cm", ""),other_info=str_replace(other_info, "15-30cm", ""),other_info=str_replace(other_info, "30-50cm", ""),other_info=str_replace(other_info, "NYM", ""),other_info=str_trim(other_info))
-
-bacteria_meta <- as.data.frame(bacteria_meta)
-rownames(bacteria_meta) <- bacteria_meta$sample_id
-bacteria_meta <- bacteria_meta[,-ncol(bacteria_meta)]
 
 #load in grape root only ASVs
 bacteria_ASVs <- read.table("bacteria/dada2_output_exported_grape/feature-table_w_tax.txt",
@@ -34,14 +26,27 @@ set.seed(38)
 
 #https://rdrr.io/a/github/bryandmartin/corncob/f/vignettes/corncob-intro.Rmd
 
-da_analysis <- differentialTest(formula = ~rootstock+root_depth,
-                 phi.formula = ~1,
-                 formula_null = ~rootstock+ root_depth,
-                 phi.formula_null = ~1,
-                 test= "Wald", boot = FALSE,
-                 data = phylo,
-                 fdr_cutoff = 0.05)
+da_analysis_rootstock <- differentialTest(formula = ~rootstock+root_depth,
+                                phi.formula = ~rootstock+root_depth,
+                                formula_null = ~root_depth,
+                                phi.formula_null = ~rootstock+root_depth,
+                                test= "Wald", boot = FALSE,
+                                data = phylo,
+                                fdr_cutoff = 0.05)
 
-da_analysis$significant_taxa
+da_analysis_rootstock$significant_taxa
 
-plot(da_analysis)
+plot(da_analysis_rootstock)
+
+
+da_analysis_root_depth <- differentialTest(formula = ~rootstock+root_depth,
+                                           phi.formula = ~rootstock+root_depth,
+                                           formula_null = ~rootstock,
+                                           phi.formula_null = ~rootstock+root_depth,
+                                           test= "Wald", boot = FALSE,
+                                           data = phylo,
+                                           fdr_cutoff = 0.05)
+
+da_analysis_root_depth$significant_taxa
+
+plot(da_analysis_root_depth)
