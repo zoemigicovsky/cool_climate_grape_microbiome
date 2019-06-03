@@ -182,11 +182,14 @@ bacteria_asv_abun_relab_genus_sum_melt$genus <- gsub(";D_.__", "_", bacteria_asv
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$genus, bacteria_asv_abun_relab_genus_sum_melt$value, sum)
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(bacteria_asv_abun_relab_genus_sum_melt$genus, "Other", after = Inf)
 
+
+
+
 bacteria_x_col <- rep(NA, length(levels(bacteria_asv_abun_relab_genus_sum_melt$variable)))
 names(bacteria_x_col) <- levels(bacteria_asv_abun_relab_genus_sum_melt$variable)
-bacteria_x_col[bacteria_root_grape_samples] <- "#009E73"
-bacteria_x_col[bacteria_root_cover_samples] <- "#E69F00"
-bacteria_x_col[bacteria_soil_grape_samples] <- "#56B4E9"
+bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "root"), "variable"]] <- "#009E73"
+bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "root (cover)"), "variable"]] <- "#E69F00"
+bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "soil"), "variable"]] <- "#56B4E9"
 
 #plot
 bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
@@ -200,7 +203,8 @@ bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variabl
   theme(legend.position="bottom",
         legend.key.size = unit(1, "cm"),
         legend.title=element_blank(),
-        axis.text.x = element_text(angle = 45,
+        axis.text.x = element_text(size=20,
+                                   angle = 45,
                                    hjust = 1,
                                    colour=bacteria_x_col),
         axis.text.y = element_text(size=20),
@@ -282,9 +286,9 @@ fungi_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(fungi_asv_abun_relab_ge
 
 fungi_x_col <- rep(NA, length(levels(fungi_asv_abun_relab_genus_sum_melt$variable)))
 names(fungi_x_col) <- levels(fungi_asv_abun_relab_genus_sum_melt$variable)
-fungi_x_col[fungi_root_grape_samples] <- "#009E73"
-fungi_x_col[fungi_root_cover_samples] <- "#E69F00"
-fungi_x_col[fungi_soil_grape_samples] <- "#56B4E9"
+fungi_x_col[fungi_meta[which(fungi_meta$group == "root"), "variable"]] <- "#009E73"
+fungi_x_col[fungi_meta[which(fungi_meta$group == "root (cover)"), "variable"]] <- "#E69F00"
+fungi_x_col[fungi_meta[which(fungi_meta$group == "soil"), "variable"]] <- "#56B4E9"
 
 #plot
 fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
@@ -298,7 +302,8 @@ fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=v
   theme(legend.position="bottom",
         legend.key.size = unit(1, "cm"),
         legend.title=element_blank(),
-        axis.text.x = element_text(angle = 45,
+        axis.text.x = element_text(size=20,
+                                   angle = 45,
                                    hjust = 1,
                                    colour=fungi_x_col),
         axis.text.y = element_text(size=20),
