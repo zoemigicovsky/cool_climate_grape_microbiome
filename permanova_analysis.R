@@ -1,6 +1,6 @@
 library(vegan)
 library(tidyverse)
-bacteria_meta <- read.delim("bacteria/root_depth_bacteria_metadata_grape_vine.txt", row.names=1)
+bacteria_meta <- read.delim("bacteria/root_depth_bacteria_metadata_grape.tsv", row.names=1)
 
 bacteria_bray <- read.delim("bacteria/diversity_grape/bray_curtis_distance_matrix_exported/distance-matrix.tsv", header = T, row.names=1)
 
@@ -8,7 +8,7 @@ bacteria_bray <- read.delim("bacteria/diversity_grape/bray_curtis_distance_matri
 bacteria_meta <- bacteria_meta[rownames(bacteria_bray),]
 
 
-permanova_bacteria <- adonis(bacteria_bray ~ rootstock+root_depth+rootstock*root_depth+vine,
+permanova_bacteria <- adonis(bacteria_bray ~ rootstock+root_depth+rootstock*root_depth,
        data = bacteria_meta, permutations=999, method = "bray")
 
 permanova_bacteria
