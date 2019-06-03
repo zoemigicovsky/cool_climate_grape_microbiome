@@ -1,0 +1,35 @@
+id	dataset	cultivar	rootstock	tissue	other_info	root_depth	species	cultivar_rootstock	vine
+e64	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R14P10V2 0-15cm	depth_0_15	grape	new_york_muscat_new_york_muscat	R14P10V2
+e65	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R14P10V2 15-30cm	depth_15_30	grape	new_york_muscat_new_york_muscat	R14P10V2
+e66	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R14P10V2 30-50cm	depth_30_50	grape	new_york_muscat_new_york_muscat	R14P10V2
+e67	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R14P10V4 0-15cm	depth_0_15	grape	new_york_muscat_new_york_muscat	R14P10V4
+e68	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R14P10V4 15-30cm	depth_15_30	grape	new_york_muscat_new_york_muscat	R14P10V4
+e69	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R14P10V4 30-50cm	depth_30_50	grape	new_york_muscat_new_york_muscat	R14P10V4
+e70	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R15P18V1 0-15cm	depth_0_15	grape	new_york_muscat_new_york_muscat	R15P18V1
+e71	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R15P18V115-30cm	depth_15_30	grape	new_york_muscat_new_york_muscat	R15P18V1
+e72	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R15P18V1 30-50cm	depth_30_50	grape	new_york_muscat_new_york_muscat	R15P18V1
+e73	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R15P18V2 0-15cm	depth_0_15	grape	new_york_muscat_new_york_muscat	R15P18V2
+e74	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R15P18V2 15-30cm	depth_15_30	grape	new_york_muscat_new_york_muscat	R15P18V2
+e75	root_depth	new_york_muscat	new_york_muscat	root	NYM Own Root R15P18V2 30-50cm	depth_30_50	grape	new_york_muscat_new_york_muscat	R15P18V2
+e76	root_depth	new_york_muscat	c3309	root	NYM 3309 R20P20V3 0-15cm	depth_0_15	grape	new_york_muscat_c3309	R20P20V3
+e77	root_depth	new_york_muscat	c3309	root	NYM 3309 R20P20V3 15-30cm	depth_15_30	grape	new_york_muscat_c3309	R20P20V3
+e78	root_depth	new_york_muscat	c3309	root	NYM 3309 R20P20V3 30-50cm	depth_30_50	grape	new_york_muscat_c3309	R20P20V3
+e79	root_depth	new_york_muscat	c3309	root	NYM 3309 R20P20V2 0-15cm	depth_0_15	grape	new_york_muscat_c3309	R20P20V2
+e80	root_depth	new_york_muscat	c3309	root	NYM 3309 R20P20V2 30-50cm	depth_30_50	grape	new_york_muscat_c3309	R20P20V2
+e81	root_depth	new_york_muscat	c3309	root	NYM 3309 R21P5V1 0-15cm	depth_0_15	grape	new_york_muscat_c3309	R21P5V1
+e82	root_depth	new_york_muscat	c3309	root	NYM 3309 R21P5V1  15-30cm	depth_15_30	grape	new_york_muscat_c3309	R21P5V1
+e83	root_depth	new_york_muscat	c3309	root	NYM 3309 R21P5V1 30-50cm	depth_30_50	grape	new_york_muscat_c3309	R21P5V1
+e84	root_depth	new_york_muscat	c3309	root	NYM 3309 R21P5V3 0-15cm	depth_0_15	grape	new_york_muscat_c3309	R21P5V3
+e85	root_depth	new_york_muscat	c3309	root	NYM 3309 R21P5V3 15-30cm	depth_15_30	grape	new_york_muscat_c3309	R21P5V3
+e86	root_depth	new_york_muscat	c3309	root	NYM 3309 R21P5V3  30-50cm	depth_30_50	grape	new_york_muscat_c3309	R21P5V3
+e87	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R16P19V1 15-30cm	depth_15_30	grape	new_york_muscat_riparia_gloire	R16P19V1
+e88	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R16P19V1 30-50cm	depth_30_50	grape	new_york_muscat_riparia_gloire	R16P19V1
+e89	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R16P19V3 0-15cm	depth_0_15	grape	new_york_muscat_riparia_gloire	R16P19V3
+e90	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R16P19V3 15-30cm	depth_15_30	grape	new_york_muscat_riparia_gloire	R16P19V3
+e91	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R16P19V3 30-50cm	depth_30_50	grape	new_york_muscat_riparia_gloire	R16P19V3
+e92	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R17P6V1 0-15cm	depth_0_15	grape	new_york_muscat_riparia_gloire	R17P6V1
+e93	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg  R17P6V1 15-30cm	depth_15_30	grape	new_york_muscat_riparia_gloire	R17P6V1
+e94	root_depth	new_york_muscat	riparia_gloire	root	NYM  R17P6V1 30-50cm	depth_30_50	grape	new_york_muscat_riparia_gloire	R17P6V1
+e95	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg  R17P6V4 0-15cm	depth_0_15	grape	new_york_muscat_riparia_gloire	R17P6V4
+e96	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R17P6V4 15-30cm	depth_15_30	grape	new_york_muscat_riparia_gloire	R17P6V4
+e97	root_depth	new_york_muscat	riparia_gloire	root	NYM Rg R17P6V4 30-50cm	depth_30_50	grape	new_york_muscat_riparia_gloire	R17P6V4
