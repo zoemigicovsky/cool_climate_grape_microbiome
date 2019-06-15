@@ -21,6 +21,7 @@ library(reshape2)
 library(tidyverse)
 library(RColorBrewer)
 library(inlmisc)
+source("root_depth_project_functions.R")
 
 # Change these two lines for different systems:
 path2repo <- "/home/gavin/github_repos/root_depth"
@@ -55,7 +56,7 @@ bacteria_ASVs_4564subsample_RDS <- paste(path2repo, "intermediate_RDS/bacteria_A
 # saveRDS(object = bacteria_ASVs_4564subsample, file = bacteria_ASVs_4564subsample_RDS)
 
 # Read in RDS:
-bacteria_ASVs_4564subsample <- readRDS(bacteria_ASVs_4564subsample_RDS)
+bacteria_ASVs_4564subsample <- readRDS("intermediate_RDS/bacteria_ASVs_4564subsample.rds")
 
 
 bacteria_taxa <- read.table("bacteria/taxa/taxonomy.tsv",
@@ -94,7 +95,7 @@ fungi_ASVs_1176subsample_RDS <- paste(path2repo, "intermediate_RDS/fungi_ASVs_11
 # saveRDS(object = fungi_ASVs_1176subsample, file = fungi_ASVs_1176subsample_RDS)
 
 # Read in RDS:
-fungi_ASVs_1176subsample <- readRDS(fungi_ASVs_1176subsample_RDS)
+fungi_ASVs_1176subsample <- readRDS( "intermediate_RDS/fungi_ASVs_1176subsample.rds")
 
 fungi_taxa <- read.table("fungi/taxa/taxonomy.tsv",
                          header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
@@ -168,10 +169,7 @@ bacteria_asv_abun_relab_genus_sum_melt$variable  <- fct_relevel(bacteria_asv_abu
 
 
 #get custom colour palette
-colour_count = length(unique(bacteria_asv_abun_relab_genus_sum_melt$genus))
-cols <- inlmisc::GetColors(n = 16, scheme = "discrete rainbow")
-cols[colour_count] <- "darkgrey"
-my_palette <- as.vector(cols[1:16])
+my_palette <- c("#8c8fae","#584563","#3e2137","#9a6348","#d79b7d","#f5edba","#c0c741","#647d34","#e4943a","#9d303b","#d26471","#70377f","#7ec4c1","#34859d","#17434b", "#6c6970")
 
 # Clean up genus labels:
 bacteria_asv_abun_relab_genus_sum_melt$genus <- as.character(bacteria_asv_abun_relab_genus_sum_melt$genus)
@@ -181,8 +179,6 @@ bacteria_asv_abun_relab_genus_sum_melt$genus <- gsub(";D_.__", "_", bacteria_asv
 #reorder genus based on abudance (low to high, across all samples)
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$genus, bacteria_asv_abun_relab_genus_sum_melt$value, sum)
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(bacteria_asv_abun_relab_genus_sum_melt$genus, "Other", after = Inf)
-
-
 
 
 bacteria_x_col <- rep(NA, length(levels(bacteria_asv_abun_relab_genus_sum_melt$variable)))
@@ -201,14 +197,14 @@ bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variabl
   xlab("") +
   ggtitle("Bacteria")+
   theme(legend.position="bottom",
-        legend.key.size = unit(1, "cm"),
+        legend.key.size = unit(0.3, "cm"),
         legend.title=element_blank(),
-        axis.text.x = element_text(size=20,
+        axis.text.x = element_text(size=16,
                                    angle = 45,
                                    hjust = 1,
                                    colour=bacteria_x_col),
         axis.text.y = element_text(size=20),
-        legend.text=element_text(size=17),
+        legend.text=element_text(size=10),
         axis.title=element_text(size=20),
         title=element_text(size=20)) +
   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
@@ -262,13 +258,6 @@ fungi_asv_abun_relab_genus_sum_melt$variable <- fct_reorder(fungi_asv_abun_relab
 
 fungi_asv_abun_relab_genus_sum_melt$variable  <- fct_relevel(fungi_asv_abun_relab_genus_sum_melt$variable ,"e98", "e99")
 
-#get custom colour palette
-colour_count = length(unique(fungi_asv_abun_relab_genus_sum_melt$genus))
-cols <- inlmisc::GetColors(n = 16, scheme = "discrete rainbow")
-cols[colour_count] <- "darkgrey"
-my_palette <- as.vector(cols[1:16])
-
-
 # Clean up genus labels:
 fungi_asv_abun_relab_genus_sum_melt$genus <- as.character(fungi_asv_abun_relab_genus_sum_melt$genus)
 fungi_asv_abun_relab_genus_sum_melt$genus <- gsub("k__Fungi;p__", "", fungi_asv_abun_relab_genus_sum_melt$genus)
@@ -300,21 +289,21 @@ fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=v
   xlab("") +
   ggtitle("Fungi")+
   theme(legend.position="bottom",
-        legend.key.size = unit(1, "cm"),
+        legend.key.size = unit(0.3, "cm"),
         legend.title=element_blank(),
-        axis.text.x = element_text(size=20,
+        axis.text.x = element_text(size=16,
                                    angle = 45,
                                    hjust = 1,
                                    colour=fungi_x_col),
         axis.text.y = element_text(size=20),
-        legend.text=element_text(size=17),
+        legend.text=element_text(size=10),
         axis.title=element_text(size=20),
         title=element_text(size=20)) +
   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
   scale_fill_manual(values = my_palette)
 
 ###Figure 1####
-pdf("figure1.pdf", width=8, height=13,family="Arial")
+pdf("figure1.pdf", width=16, height=26,family="Arial")
 first_row = plot_grid(grobTree(bacteria_sampletype_venn),grobTree(fungi_sampletype_venn), labels = c('A', 'B'), label_size=25)
 second_row = plot_grid(bacteria_stacked, labels = c('C'), nrow = 1, label_size=25)
 third_row = plot_grid(fungi_stacked, labels = c('D'), nrow = 1, label_size=25)
