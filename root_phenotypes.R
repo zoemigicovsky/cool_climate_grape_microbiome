@@ -84,6 +84,20 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 write.table(spearman_results, "bacteria_root_pheno_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 
+#Combine for a supplemental table 
+
+bacteria_evenness <- read_csv("bacteria_root_pheno_evenness_diversity_spearman_results.csv") 
+bacteria_faith <- read_csv("bacteria_root_pheno_faith_diversity_spearman_results.csv") 
+bacteria_richness <- read_csv("bacteria_root_pheno_richness_diversity_spearman_results.csv") 
+
+bacteria_evenness <- bacteria_evenness %>% mutate(diversity_metric="evenness")
+bacteria_faith <- bacteria_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
+bacteria_richness <- bacteria_evenness %>% mutate(diversity_metric="richness")
+
+bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness) %>% select(diversity_metric, pheno, estimate, p.value)
+
+write.table(bacteria_diversity, "bacteria_root_pheno_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
 ###now do the same thing with fungi
 
 root_phenos <- read_tsv("root_phenotypes.txt") %>% filter(!is.na(sample_id))
@@ -166,4 +180,21 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
 write.table(spearman_results, "fungi_root_pheno_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+#Combine for a supplemental table 
+
+fungi_evenness <- read_csv("fungi_root_pheno_evenness_diversity_spearman_results.csv") 
+fungi_faith <- read_csv("fungi_root_pheno_faith_diversity_spearman_results.csv") 
+fungi_richness <- read_csv("fungi_root_pheno_richness_diversity_spearman_results.csv") 
+
+fungi_evenness <- fungi_evenness %>% mutate(diversity_metric="evenness")
+fungi_faith <- fungi_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
+fungi_richness <- fungi_evenness %>% mutate(diversity_metric="richness")
+
+fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness) %>% select(diversity_metric, pheno, estimate, p.value)
+
+fungi_diversity %>% filter(p.value <0.05)
+
+write.table(fungi_diversity, "fungi_root_pheno_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
 
