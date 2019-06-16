@@ -95,6 +95,21 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 
 write.table(spearman_results, "bacteria_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
+#Combine for a supplemental table 
+
+bacteria_evenness <- read_csv("bacteria_soil_evenness_diversity_spearman_results.csv") 
+bacteria_faith <- read_csv("bacteria_soil_faith_diversity_spearman_results.csv") 
+bacteria_richness <- read_csv("bacteria_soil_richness_diversity_spearman_results.csv") 
+
+bacteria_evenness <- bacteria_evenness %>% mutate(diversity_metric="evenness")
+bacteria_faith <- bacteria_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
+bacteria_richness <- bacteria_evenness %>% mutate(diversity_metric="richness")
+
+bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness) %>% select(diversity_metric, pheno, estimate, p.value)
+
+write.table(bacteria_diversity, "bacteria_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+
 #Now do the same thing but with the main genera 
 
 #load in raw feature data 
@@ -175,7 +190,8 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
-
+spearman_results <- spearman_results %>% select(bacteria_genus=bacteria, pheno, estimate, p.value)
+  
 write.table(spearman_results, "bacteria_genus_soil_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #FUNGI ANALYSIS 
@@ -263,6 +279,21 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 
 write.table(spearman_results, "fungi_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
+#Combine for a supplemental table 
+
+fungi_evenness <- read_csv("fungi_soil_evenness_diversity_spearman_results.csv") 
+fungi_faith <- read_csv("fungi_soil_faith_diversity_spearman_results.csv") 
+fungi_richness <- read_csv("fungi_soil_richness_diversity_spearman_results.csv") 
+
+fungi_evenness <- fungi_evenness %>% mutate(diversity_metric="evenness")
+fungi_faith <- fungi_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
+fungi_richness <- fungi_evenness %>% mutate(diversity_metric="richness")
+
+fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness) %>% select(diversity_metric, pheno, estimate, p.value)
+
+write.table(fungi_diversity, "fungi_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+
+
 #Now do the same thing but with the main genera 
 
 #load in raw feature data 
@@ -344,6 +375,8 @@ spearman_results %>% filter(p.value <= 0.05)
 #  0.7366645 0.02119396    na k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
 # -0.7103334 0.02993484    fe k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
 #  0.7509783 0.02119396    mn k__Fungi;p__Ascomycota;c__Pezizomycetes;o__Pezizales;f__Pyronemataceae;g__Pseudaleuria
+
+spearman_results <- spearman_results %>% select(fungi_genus=fungi, pheno, estimate, p.value)
 
 write.table(spearman_results, "fungi_genus_soil_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
