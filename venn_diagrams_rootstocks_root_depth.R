@@ -5,6 +5,8 @@ rm(list=ls(all=TRUE))
 
 library(extrafont)
 library(cowplot)
+library(VennDiagram)
+source("root_depth_project_functions.R")
 
 # Change these two lines for different systems:
 path2repo <- "/home/gavin/github_repos/root_depth"
@@ -21,7 +23,7 @@ bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
 
 #load in grape root only ASVs (subsampled in advance).
 bacteria_ASVs_4564subsample_RDS <- paste(path2repo, "intermediate_RDS/bacteria_ASVs_4564subsample.rds", sep="/")
-bacteria_ASVs_4564subsample <- readRDS(bacteria_ASVs_4564subsample_RDS)
+bacteria_ASVs_4564subsample <- readRDS("intermediate_RDS/bacteria_ASVs_4564subsample.rds")
 
 # Only keep grape root samples.
 bacteria_meta <- bacteria_meta[which(bacteria_meta$species == "grape" & bacteria_meta$tissue == "root"), ]
@@ -49,7 +51,7 @@ fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
 
 #load in grape root only ASVs (subsampled in advance)
 fungi_ASVs_1176subsample_RDS <- paste(path2repo, "intermediate_RDS/fungi_ASVs_1176subsample.rds", sep="/")
-fungi_ASVs_1176subsample <- readRDS(fungi_ASVs_1176subsample_RDS)
+fungi_ASVs_1176subsample <- readRDS("intermediate_RDS/fungi_ASVs_1176subsample.rds")
 
 
 # Only keep grape root samples.
