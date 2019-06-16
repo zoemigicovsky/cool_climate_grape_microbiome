@@ -47,24 +47,40 @@ root_depth <- bacteria_meta[,"root_depth"]
 
 root_depth_aldex <- aldex.clr(bacteria_asv_aldex, root_depth,mc.samples = 128, verbose=T)
 root_depth_aldex_kw <- aldex.kw(root_depth_aldex, verbose=T)
-write.table(root_depth_aldex_kw, "bacteria_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = T)
+root_depth_aldex_kw <- cbind(rownames(root_depth_aldex_kw), root_depth_aldex_kw)
+colnames(root_depth_aldex_kw)[1] <- "bacteria genus"
+write.table(root_depth_aldex_kw, "bacteria_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = F)
 
 rootstock_aldex <- aldex.clr(bacteria_asv_aldex, rootstock,mc.samples = 128, verbose=T)
 rootstock_aldex_kw <- aldex.kw(rootstock_aldex, verbose=T)
-write.table(rootstock_aldex_kw, "bacteria_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = T)
+rootstock_aldex_kw <- cbind(rownames(rootstock_aldex_kw), rootstock_aldex_kw)
+colnames(rootstock_aldex_kw)[1] <- "bacteria genus"
+write.table(rootstock_aldex_kw, "bacteria_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = F)
 
-root_depth_aldex_kw_sig <- root_depth_aldex_kw[root_depth_aldex_kw[,"glm.eBH"] <=0.05,]
+#combine for supplemental table
+root_depth_aldex_kw <- read_tsv("bacteria_root_depth_aldex_kw.txt")
+root_depth_aldex_kw <- root_depth_aldex_kw %>% mutate(factor="root depth") %>% select("bacteria genus", factor, kw.ep:glm.eBH)
+
+rootstock_aldex_kw <- read_tsv("bacteria_rootstock_aldex_kw.txt")
+rootstock_aldex_kw <- rootstock_aldex_kw %>% mutate(factor="rootstock") %>% select("bacteria genus", factor, kw.ep:glm.eBH)
+
+aldex_bacteria_results <- bind_rows(root_depth_aldex_kw,rootstock_aldex_kw)
+write.table(aldex_bacteria_results, "aldex_bacteria_results.csv", sep=",", quote=F, row.names = F)
+
+#Filter down to only significant
+aldex_bacteria_results_sig <- aldex_bacteria_results[aldex_bacteria_results[,"kw.eBH"] <=0.05,]
+
 #In this case there would be none that are significant across root depths
-rootstock_aldex_kw_sig <- rootstock_aldex_kw[rootstock_aldex_kw[,"glm.eBH"] <=0.05,]
-#9 that are significant across rootstocks
-write.table(rootstock_aldex_kw_sig, "bacteria_rootstock_aldex_kw_sig_genus.txt", sep="\t", quote=F, row.names = T)
+#12 that are significant across rootstocks
+write.table(aldex_bacteria_results_sig, "aldex_bacteria_results_sig.csv", sep=",", quote=F, row.names = F)
 
 #Look at distributions for significant genera
 #Convert to relative abundances first
 bacteria_asv_abun <- data.frame(sweep(bacteria_asv_abun_genus_sum[,2:ncol(bacteria_asv_abun_genus_sum)], 2, colSums(bacteria_asv_abun_genus_sum[,2:ncol(bacteria_asv_abun_genus_sum)]), '/')) * 100
 rownames(bacteria_asv_abun) <- bacteria_asv_abun_genus_sum[,"genus"]
 
-bacteria_asv_abun_rootstock <- bacteria_asv_abun[rownames(bacteria_asv_abun) %in% rownames(rootstock_aldex_kw_sig),]
+aldex_bacteria_results_sig <- as.data.frame(aldex_bacteria_results_sig)
+bacteria_asv_abun_rootstock <- bacteria_asv_abun[rownames(bacteria_asv_abun) %in% aldex_bacteria_results_sig[,"bacteria genus"],]
 bacteria_asv_abun_rootstock <- cbind(rownames(bacteria_asv_abun_rootstock), bacteria_asv_abun_rootstock)
 colnames(bacteria_asv_abun_rootstock)[1] <- "genus"
 
@@ -95,23 +111,17 @@ bacteria_asv_abun_rootstock_meta <- bacteria_asv_abun_rootstock_meta %>% mutate(
 
 table(bacteria_asv_abun_rootstock_meta$other_info)
 #R14P10V2 R14P10V4 R15P18V1 R15P18V2 R16P19V1 R16P19V3  R17P6V1  R17P6V4 R20P20V2 R20P20V3  R21P5V1  R21P5V3 
-#24       24       24       24       16       24       24       24       16       24       24       24 
+#36       36       36       36       24       36       36       36       24       36       36       36  
 
 pdf("rootstock_bacteria_distributions.pdf", width=6.5, height=8,family="Arial")
-bacteria_asv_abun_rootstock_meta %>% ggplot(aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(alpha=0.7, stroke=0, size=2) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "none")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
+bacteria_asv_abun_rootstock_meta %>% ggplot(aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(alpha=0.7, stroke=0, size=2) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free", ncol=4) +theme_few()+theme(legend.position = "none")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
 dev.off()
 
-pdf("rootstock_bacteria_distributions_vine.pdf", width=6.5, height=8,family="Arial")
-ggplot(bacteria_asv_abun_rootstock_meta, aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(aes(colour=other_info), stroke=0, alpha=0.7, size=3) + geom_boxplot(aes(fill=rootstock), alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "bottom")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
+my_palette <- c("#5289C7", "#E8601C", "#4EB265", "#F4A736" ,"#F7F056" ,"#1965B0", "#882E72" ,"#AE76A3", "#CAE0AB" ,"#D1BBD7" , "#DC050C", "#7BAFDE")
+
+pdf("rootstock_bacteria_distributions_vine.pdf", width=7, height=10,family="Arial")
+ggplot(bacteria_asv_abun_rootstock_meta, aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(aes(colour=other_info), stroke=0, alpha=0.7, size=3)+ scale_colour_manual(values = my_palette) + geom_boxplot(alpha=0.3, outlier.alpha = 0) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "bottom")+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
 dev.off()
-
-cols <- inlmisc::GetColors(n = 12, scheme = "discrete rainbow")
-my_palette <- as.vector(cols[1:12])
-
-pdf("rootstock_bacteria_distributions_vine_no_boxplot.pdf", width=8, height=10,family="Arial")
-ggplot(bacteria_asv_abun_rootstock_meta, aes(x=factor(rootstock, level=c("Ungrafted", "3309 C", "Riparia Gloire")), y=relative_abun)) + geom_quasirandom(aes(colour=other_info), stroke=0, alpha=0.7, size=3)  + scale_color_manual(values = my_palette) + facet_wrap(~genus_name, scales = "free") +theme_few()+theme(legend.position = "bottom")+ scale_fill_manual(values = color_palette)+labs(y="Relative Abundance (%)", x="Rootstock")+theme(axis.text = element_text(size=8, colour="black", face="plain"), text=element_text(size=9, face="bold"), axis.text.x = element_text(angle=45, hjust=1, color="black"))
-dev.off()
-
 
 ###FUNGI#### 
 fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
@@ -153,13 +163,27 @@ root_depth <- fungi_meta[,"root_depth"]
 
 root_depth_aldex <- aldex.clr(fungi_asv_aldex, root_depth,mc.samples = 128, verbose=T)
 root_depth_aldex_kw <- aldex.kw(root_depth_aldex, verbose=T)
-write.table(root_depth_aldex_kw, "fungi_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = T)
+root_depth_aldex_kw <- cbind(rownames(root_depth_aldex_kw), root_depth_aldex_kw)
+colnames(root_depth_aldex_kw)[1] <- "fungi genus"
+write.table(root_depth_aldex_kw, "fungi_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = F)
 
 rootstock_aldex <- aldex.clr(fungi_asv_aldex, rootstock,mc.samples = 128, verbose=T)
 rootstock_aldex_kw <- aldex.kw(rootstock_aldex, verbose=T)
-write.table(rootstock_aldex_kw, "fungi_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = T)
+rootstock_aldex_kw <- cbind(rownames(rootstock_aldex_kw), rootstock_aldex_kw)
+colnames(rootstock_aldex_kw)[1] <- "fungi genus"
+write.table(rootstock_aldex_kw, "fungi_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = F)
 
-root_depth_aldex_kw_sig <- root_depth_aldex_kw[root_depth_aldex_kw[,"glm.eBH"] <=0.05,]
-#In this case there would be none that are significant across root depths
-rootstock_aldex_kw_sig <- rootstock_aldex_kw[rootstock_aldex_kw[,"glm.eBH"] <=0.05,]
-#Based on glm.eBH there are no significant genera for fungi 
+#combine for supplemental table
+root_depth_aldex_kw <- read_tsv("fungi_root_depth_aldex_kw.txt")
+root_depth_aldex_kw <- root_depth_aldex_kw %>% mutate(factor="root depth") %>% select("fungi genus", factor, kw.ep:glm.eBH)
+
+rootstock_aldex_kw <- read_tsv("fungi_rootstock_aldex_kw.txt")
+rootstock_aldex_kw <- rootstock_aldex_kw %>% mutate(factor="rootstock") %>% select("fungi genus", factor, kw.ep:glm.eBH)
+
+aldex_fungi_results <- bind_rows(root_depth_aldex_kw,rootstock_aldex_kw)
+write.table(aldex_fungi_results, "aldex_fungi_results.csv", sep=",", quote=F, row.names = F)
+
+#Filter down to only significant
+aldex_fungi_results_sig <- aldex_fungi_results[aldex_fungi_results[,"kw.eBH"] <=0.05,]
+
+#In this case there would be none that are significant 
