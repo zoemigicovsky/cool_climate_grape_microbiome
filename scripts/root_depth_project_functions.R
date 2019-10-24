@@ -83,8 +83,8 @@ UNITE_qiime2_taxa_breakdown <- function(taxa_in) {
 }
 
 
-threeWayVennPercent <- function(metadata, meta_col, asv_abun, taxa_df, meta_cat,
-                                labels=c("cat1", "cat2", "cat3"), colours=c("#009E73", "#E69F00", "#56B4E9")) {
+threeWayVennPercentGenus <- function(metadata, meta_col, asv_abun, taxa_df, meta_cat,
+                                     labels=c("cat1", "cat2", "cat3"), colours=c("#009E73", "#E69F00", "#56B4E9")) {
   
   # Get sets of ASVs and genera present in each grouping (root of cover crops, grape roots, and grape soil).
   category1_samples <- rownames(metadata)[which(metadata[, meta_col] == meta_cat[1])]

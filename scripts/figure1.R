@@ -21,22 +21,20 @@ library(reshape2)
 library(tidyverse)
 library(RColorBrewer)
 library(inlmisc)
-source("root_depth_project_functions.R")
 
-# Change these two lines for different systems:
+# Change this line for different systems:
 path2repo <- "/home/gavin/github_repos/root_depth"
-working_dir <- "/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/"
 
-source(paste(path2repo, "root_depth_project_functions.R", sep="/"))
-setwd(working_dir)
+setwd(path2repo)
+source("scripts/root_depth_project_functions.R")
 
-bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
+bacteria_meta <- read.table("data/metadata/root_depth_bacteria_metadata.tsv",
                             header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
 bacteria_meta$group <- bacteria_meta$tissue
 bacteria_meta$group[which(bacteria_meta$species == "cover_crop")] <- "root (cover)"
 
-bacteria_ASVs <- read.table("bacteria/dada2_output_exported/feature-table_w_tax.txt",
+bacteria_ASVs <- read.table("data/ASV_tables/bacteria/feature-table_w_tax.txt",
                             header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
 bacteria_ASVs <- bacteria_ASVs[, -which(colnames(bacteria_ASVs) == "taxonomy")]
@@ -47,7 +45,7 @@ min(colSums(bacteria_ASVs))
 
 # Rarefy table. Save this output table as RDS file to avoid re-running this step.
 # Output RDS filepath:
-bacteria_ASVs_4564subsample_RDS <- paste(path2repo, "intermediate_RDS/bacteria_ASVs_4564subsample.rds", sep="/")
+bacteria_ASVs_4564subsample_RDS <- paste("data/intermediate_RDS/bacteria_ASVs_4564subsample.rds")
 
 # # Code that should not be re-run every time:
 # set.seed(141)
@@ -56,16 +54,15 @@ bacteria_ASVs_4564subsample_RDS <- paste(path2repo, "intermediate_RDS/bacteria_A
 # saveRDS(object = bacteria_ASVs_4564subsample, file = bacteria_ASVs_4564subsample_RDS)
 
 # Read in RDS:
-bacteria_ASVs_4564subsample <- readRDS("intermediate_RDS/bacteria_ASVs_4564subsample.rds")
+bacteria_ASVs_4564subsample <- readRDS(bacteria_ASVs_4564subsample_RDS)
 
-
-bacteria_taxa <- read.table("bacteria/taxa/taxonomy.tsv",
+bacteria_taxa <- read.table("data/ASV_tables/bacteria/taxonomy.tsv",
                             header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
 bacteria_taxa_breakdown <- qiime2_taxa_breakdown(bacteria_taxa)
 
-bacteria_sampletype_venn <- threeWayVennPercent(metadata=bacteria_meta,
+bacteria_sampletype_venn <- threeWayVennPercentGenus(metadata=bacteria_meta,
                                             meta_col="group",
                                             asv_abun=bacteria_ASVs_4564subsample,
                                             taxa_df=bacteria_taxa_breakdown,
@@ -74,9 +71,8 @@ bacteria_sampletype_venn <- threeWayVennPercent(metadata=bacteria_meta,
                                             colours=c("#009E73", "#E69F00", "#56B4E9"))
 
 #### Run the same commands, but for fungi:
-
-fungi_ASVs <- read.table("fungi/dada2_output_exported/feature-table_w_tax.txt",
-                         header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
+fungi_ASVs <- read.table("data/ASV_tables/fungi/feature-table_w_tax.txt",
+                            header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
 fungi_ASVs <- fungi_ASVs[, -which(colnames(fungi_ASVs) == "taxonomy")]
 
@@ -86,7 +82,7 @@ min(colSums(fungi_ASVs))
 
 # Rarefy table. Save this output table as RDS file to avoid re-running this step.
 # Output RDS filepath:
-fungi_ASVs_1176subsample_RDS <- paste(path2repo, "intermediate_RDS/fungi_ASVs_1176subsample.rds", sep="/")
+fungi_ASVs_1176subsample_RDS <- paste("data/intermediate_RDS/fungi_ASVs_1176subsample.rds")
 
 # Code that should not be re-run every time:
 # set.seed(151)
@@ -95,12 +91,12 @@ fungi_ASVs_1176subsample_RDS <- paste(path2repo, "intermediate_RDS/fungi_ASVs_11
 # saveRDS(object = fungi_ASVs_1176subsample, file = fungi_ASVs_1176subsample_RDS)
 
 # Read in RDS:
-fungi_ASVs_1176subsample <- readRDS( "intermediate_RDS/fungi_ASVs_1176subsample.rds")
+fungi_ASVs_1176subsample <- readRDS(fungi_ASVs_1176subsample_RDS)
 
-fungi_taxa <- read.table("fungi/taxa/taxonomy.tsv",
+fungi_taxa <- read.table("data/ASV_tables/fungi/taxonomy.tsv",
                          header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
-fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
+fungi_meta <- read.table("data/metadata/root_depth_fungi_metadata.tsv",
                          header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
 fungi_meta$group <- fungi_meta$tissue
@@ -112,7 +108,7 @@ fungi_meta <- fungi_meta[which(rownames(fungi_meta) %in% colnames(fungi_ASVs_117
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
 fungi_taxa_breakdown <- UNITE_qiime2_taxa_breakdown(fungi_taxa)
 
-fungi_sampletype_venn <- threeWayVennPercent(metadata=fungi_meta,
+fungi_sampletype_venn <- threeWayVennPercentGenus(metadata=fungi_meta,
                                                 meta_col="group",
                                                 asv_abun=fungi_ASVs_1176subsample,
                                                 taxa_df=fungi_taxa_breakdown,
@@ -122,18 +118,12 @@ fungi_sampletype_venn <- threeWayVennPercent(metadata=fungi_meta,
 
 
 ###Stacked bar - Bacteria####
-bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
-                            header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
-
-bacteria_meta$group <- bacteria_meta$tissue
-bacteria_meta$group[which(bacteria_meta$species == "cover_crop")] <- "root (cover)"
-
-bacteria_ASVs <- read.table("bacteria/dada2_output_exported/feature-table_w_tax.txt",
+bacteria_ASVs <- read.table("data/ASV_tables/bacteria/feature-table_w_tax.txt",
                             header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
 bacteria_ASVs <- bacteria_ASVs[, -which(colnames(bacteria_ASVs) == "taxonomy")]
 
-bacteria_taxa <- read.table("bacteria/taxa/taxonomy.tsv",
+bacteria_taxa <- read.table("data/ASV_tables/bacteria/taxonomy.tsv",
                             header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
@@ -180,49 +170,55 @@ bacteria_asv_abun_relab_genus_sum_melt$genus <- gsub(";D_.__", "_", bacteria_asv
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(bacteria_asv_abun_relab_genus_sum_melt$genus, bacteria_asv_abun_relab_genus_sum_melt$value, sum)
 bacteria_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(bacteria_asv_abun_relab_genus_sum_melt$genus, "Other", after = Inf)
 
+bacteria_asv_abun_relab_genus_sum_melt[which(bacteria_asv_abun_relab_genus_sum_melt$group == "cover"), "group"] <- "Cover crop roots"
+bacteria_asv_abun_relab_genus_sum_melt[which(bacteria_asv_abun_relab_genus_sum_melt$group == "root"), "group"] <- "Grape roots"
+bacteria_asv_abun_relab_genus_sum_melt[which(bacteria_asv_abun_relab_genus_sum_melt$group == "soil"), "group"] <- "Grape soil"
 
-bacteria_x_col <- rep(NA, length(levels(bacteria_asv_abun_relab_genus_sum_melt$variable)))
-names(bacteria_x_col) <- levels(bacteria_asv_abun_relab_genus_sum_melt$variable)
-bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "root"), "variable"]] <- "#009E73"
-bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "root (cover)"), "variable"]] <- "#E69F00"
-bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "soil"), "variable"]] <- "#56B4E9"
-
-#plot
-bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
-  geom_bar(stat="identity") +
+bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
   theme_bw() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
-  ylab("Relative Abundance (%)") +
+  ylab("Relative abundance (%)") +
   xlab("") +
-  ggtitle("Bacteria")+
-  theme(legend.position="bottom",
-        legend.key.size = unit(0.3, "cm"),
+  ggtitle("Bacteria") +
+  theme(legend.position="none",
+        axis.text.y = element_text(size=15),
+        axis.text.x = element_text(size=15),
+        axis.title=element_text(size=15),
+        title=element_text(size=15)) +
+  scale_fill_manual(values = my_palette) +
+  scale_y_continuous(labels = scales::percent)
+
+tmp_bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
+  theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  ylab("Relative abundance (%)") +
+  xlab("") +
+  ggtitle("bacteria") +
+  theme(legend.position="right",
+        legend.key.size = unit(1, "cm"),
         legend.title=element_blank(),
-        axis.text.x = element_text(size=16,
-                                   angle = 45,
-                                   hjust = 1,
-                                   colour=bacteria_x_col),
         axis.text.y = element_text(size=20),
         legend.text=element_text(size=10),
         axis.title=element_text(size=20),
         title=element_text(size=20)) +
-  guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
-  scale_fill_manual(values = my_palette)
+  guides(fill=guide_legend(ncol=1)) +
+  scale_fill_manual(values = my_palette) +
+  scale_y_continuous(labels = scales::percent)
 
-###Stacked bar - Fungi####
-fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
-                         header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
+tmp_bacteria_stacked_grobs <- ggplotGrob(tmp_bacteria_stacked)$grobs
+tmp_bacteria_stacked_legend <- tmp_bacteria_stacked_grobs[[which(sapply(tmp_bacteria_stacked_grobs, function(x) x$name) == "guide-box")]]
 
-fungi_meta$group <- fungi_meta$tissue
-fungi_meta$group[which(fungi_meta$species == "cover_crop")] <- "root (cover)"
-
-fungi_ASVs <- read.table("fungi/dada2_output_exported/feature-table_w_tax.txt",
+# Run same commands, but for fungi:
+fungi_ASVs <- read.table("data/ASV_tables/fungi/feature-table_w_tax.txt",
                          header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
 fungi_ASVs <- fungi_ASVs[, -which(colnames(fungi_ASVs) == "taxonomy")]
 
-fungi_taxa <- read.table("fungi/taxa/taxonomy.tsv",
+fungi_taxa <- read.table("data/ASV_tables/fungi/taxonomy.tsv",
                          header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
@@ -273,39 +269,116 @@ fungi_asv_abun_relab_genus_sum_melt$genus <- fct_reorder(fungi_asv_abun_relab_ge
 #Put Other last
 fungi_asv_abun_relab_genus_sum_melt$genus <- fct_relevel(fungi_asv_abun_relab_genus_sum_melt$genus, "Other", after = Inf)
 
-fungi_x_col <- rep(NA, length(levels(fungi_asv_abun_relab_genus_sum_melt$variable)))
-names(fungi_x_col) <- levels(fungi_asv_abun_relab_genus_sum_melt$variable)
-fungi_x_col[fungi_meta[which(fungi_meta$group == "root"), "variable"]] <- "#009E73"
-fungi_x_col[fungi_meta[which(fungi_meta$group == "root (cover)"), "variable"]] <- "#E69F00"
-fungi_x_col[fungi_meta[which(fungi_meta$group == "soil"), "variable"]] <- "#56B4E9"
+fungi_asv_abun_relab_genus_sum_melt[which(fungi_asv_abun_relab_genus_sum_melt$group == "cover"), "group"] <- "Cover crop roots"
+fungi_asv_abun_relab_genus_sum_melt[which(fungi_asv_abun_relab_genus_sum_melt$group == "root"), "group"] <- "Grape roots"
+fungi_asv_abun_relab_genus_sum_melt[which(fungi_asv_abun_relab_genus_sum_melt$group == "soil"), "group"] <- "Grape soil"
 
-#plot
-fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
-  geom_bar(stat="identity") +
+fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
   theme_bw() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-                     panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("Relative Abundance (%)") +
   xlab("") +
-  ggtitle("Fungi")+
-  theme(legend.position="bottom",
-        legend.key.size = unit(0.3, "cm"),
-        legend.title=element_blank(),
-        axis.text.x = element_text(size=16,
-                                   angle = 45,
-                                   hjust = 1,
-                                   colour=fungi_x_col),
-        axis.text.y = element_text(size=20),
-        legend.text=element_text(size=10),
-        axis.title=element_text(size=20),
-        title=element_text(size=20)) +
-  guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
-  scale_fill_manual(values = my_palette)
+  ggtitle("Fungi") +
+  theme(legend.position="none",
+        axis.text.y = element_text(size=15),
+        axis.text.x = element_text(size=15),
+        axis.title=element_text(size=15),
+        title=element_text(size=15)) +
+  scale_fill_manual(values = my_palette) +
+  scale_y_continuous(labels = scales::percent)
 
-###Figure 1####
-pdf("figure1.pdf", width=16, height=26,family="Arial")
-first_row = plot_grid(grobTree(bacteria_sampletype_venn),grobTree(fungi_sampletype_venn), labels = c('A', 'B'), label_size=25)
-second_row = plot_grid(bacteria_stacked, labels = c('C'), nrow = 1, label_size=25)
-third_row = plot_grid(fungi_stacked, labels = c('D'), nrow = 1, label_size=25)
-plot_grid(first_row, second_row, third_row, labels=c('', '', ''), ncol=1)
+
+tmp_fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
+                            theme_bw() +
+                            theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+                                  panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+                            ylab("Relative Abundance (%)") +
+                            xlab("") +
+                            ggtitle("Fungi") +
+                            theme(legend.position="right",
+                                  legend.key.size = unit(1, "cm"),
+                                  legend.title=element_blank(),
+                                  axis.text.y = element_text(size=20),
+                                  legend.text=element_text(size=10),
+                                  axis.title=element_text(size=20),
+                                  title=element_text(size=20)) +
+                            guides(fill=guide_legend(ncol=1)) +
+                            scale_fill_manual(values = my_palette) +
+                            scale_y_continuous(labels = scales::percent)
+
+tmp_fungi_stacked_grobs <- ggplotGrob(tmp_fungi_stacked)$grobs
+tmp_fungi_stacked_legend <- tmp_fungi_stacked_grobs[[which(sapply(tmp_fungi_stacked_grobs, function(x) x$name) == "guide-box")]]
+
+# Combine panels into single figure and write out figure.
+# Note that Arial font is commented out below since wouldn't work on the system used.
+pdf("figures/figure1.pdf", width=30, height=24)#, family="Arial")
+first_row = plot_grid(grobTree(bacteria_sampletype_venn), grobTree(fungi_sampletype_venn), labels = c('A', 'B'), label_size=25)
+second_row = plot_grid(bacteria_stacked, tmp_bacteria_stacked_legend, fungi_stacked, tmp_fungi_stacked_legend, labels = c('C', '', 'D', ''),
+                       nrow = 1, ncol=4, label_size=25, rel_widths = c(1, 1.25, 1, 1.25))
+
+#third_row = plot_grid(fungi_stacked, tmp_fungi_stacked_legend, labels = c('D', ''), nrow = 1, ncol=2, label_size=25, rel_widths = c(1, 1))
+plot_grid(first_row, second_row, labels=c('', ''), nrow=2, rel_heights = c(1, 2))
 dev.off()
+
+
+### Original stacked barcharts plotted all samples (rather than by group), which was performed with the below code.
+#
+# bacteria_x_col <- rep(NA, length(levels(bacteria_asv_abun_relab_genus_sum_melt$variable)))
+# names(bacteria_x_col) <- levels(bacteria_asv_abun_relab_genus_sum_melt$variable)
+# bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "root"), "variable"]] <- "#009E73"
+# bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "root (cover)"), "variable"]] <- "#E69F00"
+# bacteria_x_col[bacteria_meta[which(bacteria_meta$group == "soil"), "variable"]] <- "#56B4E9"
+
+# bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
+#   geom_bar(stat="identity") +
+#   theme_bw() +
+#   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+#   ylab("Relative Abundance (%)") +
+#   xlab("") +
+#   ggtitle("Bacteria")+
+#   theme(legend.position="bottom",
+#         legend.key.size = unit(0.3, "cm"),
+#         legend.title=element_blank(),
+#         axis.text.x = element_text(size=16,
+#                                    angle = 45,
+#                                    hjust = 1,
+#                                    colour=bacteria_x_col),
+#         axis.text.y = element_text(size=20),
+#         legend.text=element_text(size=10),
+#         axis.title=element_text(size=20),
+#         title=element_text(size=20)) +
+#   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
+#   scale_fill_manual(values = my_palette)
+# 
+# 
+# fungi_x_col <- rep(NA, length(levels(fungi_asv_abun_relab_genus_sum_melt$variable)))
+# names(fungi_x_col) <- levels(fungi_asv_abun_relab_genus_sum_melt$variable)
+# fungi_x_col[fungi_meta[which(fungi_meta$group == "root"), "variable"]] <- "#009E73"
+# fungi_x_col[fungi_meta[which(fungi_meta$group == "root (cover)"), "variable"]] <- "#E69F00"
+# fungi_x_col[fungi_meta[which(fungi_meta$group == "soil"), "variable"]] <- "#56B4E9"
+# 
+# fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=variable, y=value, fill=genus)) +
+#   geom_bar(stat="identity") +
+#   theme_bw() +
+#   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+#   ylab("Relative Abundance (%)") +
+#   xlab("") +
+#   ggtitle("Fungi")+
+#   theme(legend.position="bottom",
+#         legend.key.size = unit(0.3, "cm"),
+#         legend.title=element_blank(),
+#         axis.text.x = element_text(size=16,
+#                                    angle = 45,
+#                                    hjust = 1,
+#                                    colour=fungi_x_col),
+#         axis.text.y = element_text(size=20),
+#         legend.text=element_text(size=10),
+#         axis.title=element_text(size=20),
+#         title=element_text(size=20)) +
+#   guides(fill=guide_legend(nrow=10, byrow=TRUE)) +
+#   scale_fill_manual(values = my_palette)
