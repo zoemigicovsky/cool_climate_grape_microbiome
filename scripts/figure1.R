@@ -314,13 +314,13 @@ tmp_fungi_stacked_legend <- tmp_fungi_stacked_grobs[[which(sapply(tmp_fungi_stac
 
 # Combine panels into single figure and write out figure.
 # Note that Arial font is commented out below since wouldn't work on the system used.
-pdf("figures/figure1.pdf", width=30, height=24)#, family="Arial")
+pdf("figures/figure1.pdf", width=30, height=26)#, family="Arial")
 first_row = plot_grid(grobTree(bacteria_sampletype_venn), grobTree(fungi_sampletype_venn), labels = c('A', 'B'), label_size=25)
 second_row = plot_grid(bacteria_stacked, tmp_bacteria_stacked_legend, fungi_stacked, tmp_fungi_stacked_legend, labels = c('C', '', 'D', ''),
                        nrow = 1, ncol=4, label_size=25, rel_widths = c(1, 1.25, 1, 1.25))
 
 #third_row = plot_grid(fungi_stacked, tmp_fungi_stacked_legend, labels = c('D', ''), nrow = 1, ncol=2, label_size=25, rel_widths = c(1, 1))
-plot_grid(first_row, second_row, labels=c('', ''), nrow=2, rel_heights = c(1, 2))
+plot_grid(first_row, second_row, labels=c('', ''), nrow=2)
 dev.off()
 
 
