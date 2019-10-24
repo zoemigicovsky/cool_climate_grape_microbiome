@@ -3,6 +3,7 @@ rm(list=ls(all=TRUE))
 library(cowplot)
 library(ggplot2)
 library(ggbeeswarm)
+library(Hmisc)
 
 setwd("/home/gavin/gavin_backup/projects/zoe_microbiome/data/root_depth/")
 source("/home/gavin/github_repos/root_depth/root_depth_project_functions.R")
@@ -81,11 +82,14 @@ fungi_alpha[which(fungi_alpha$root_depth == "depth_15_30"), "root_depth"] <- "15
 fungi_alpha[which(fungi_alpha$root_depth == "depth_30_50"), "root_depth"] <- "30-50 cm"
 
 # Make plots.
+legend_text_size <- 8
+
 bacteria_richness_rsq <- round(summary(bacteria_root_depth_richness_lm)$adj.r.squared, digits=3)
 bacteria_richness_f <- summary(bacteria_root_depth_richness_lm)$fstatistic
 bacteria_richness_p <- round(as.numeric(pf(bacteria_richness_f[1], bacteria_richness_f[2], bacteria_richness_f[3], lower.tail=F)), digits=3)
 
-bacteria_richness_plot_title <- bquote("Bacteria richness (Adj." ~ R^2~"=" ~ .(bacteria_richness_rsq) ~ ", P=" ~ .(bacteria_richness_p) ~ ")")
+#bacteria_richness_plot_title <- bquote("Bacteria richness (Adj." ~ R^2~"=" ~ .(bacteria_richness_rsq) ~ ", P=" ~ .(bacteria_richness_p) ~ ")")
+bacteria_richness_plot_title <- bquote("Bacteria richness")
 
 bacteria_richness <- ggplot(aes(colour=Rootstock, x=root_depth, y=richness), data=bacteria_alpha) +
                                 geom_quasirandom(size=5, width=0.1) +
@@ -93,7 +97,11 @@ bacteria_richness <- ggplot(aes(colour=Rootstock, x=root_depth, y=richness), dat
                                              geom="pointrange", color="black",  alpha=0.4) +
                               ylab("Richness") +
                               xlab("Root depth") +
-                              ggtitle(bacteria_richness_plot_title)
+                              ggtitle(bacteria_richness_plot_title) +
+  theme(legend.position=c(0.02, 0.17),
+        legend.background = element_rect(linetype = 1, size = 0.5, colour = 1), 
+        legend.text = element_text(size=legend_text_size),
+        legend.title = element_text(size=legend_text_size))
 
 
 
@@ -101,7 +109,8 @@ bacteria_evenness_rsq <- round(summary(bacteria_root_depth_evenness_lm)$adj.r.sq
 bacteria_evenness_f <- summary(bacteria_root_depth_evenness_lm)$fstatistic
 bacteria_evenness_p <- round(as.numeric(pf(bacteria_evenness_f[1], bacteria_evenness_f[2], bacteria_evenness_f[3], lower.tail=F)), digits=3)
 
-bacteria_evenness_plot_title <- bquote("Bacteria evenness (Adj." ~ R^2~"=" ~ .(bacteria_evenness_rsq) ~ ", P=" ~ .(bacteria_evenness_p) ~ ")")
+#bacteria_evenness_plot_title <- bquote("Bacteria evenness (Adj." ~ R^2~"=" ~ .(bacteria_evenness_rsq) ~ ", P=" ~ .(bacteria_evenness_p) ~ ")")
+bacteria_evenness_plot_title <- bquote("Bacteria evenness")
 
 bacteria_evenness <- ggplot(aes(colour=Rootstock, x=root_depth, y=evenness), data=bacteria_alpha) +
   geom_quasirandom(size=5, width=0.1) +
@@ -109,14 +118,19 @@ bacteria_evenness <- ggplot(aes(colour=Rootstock, x=root_depth, y=evenness), dat
                geom="pointrange", color="black",  alpha=0.4) +
   ylab("Evenness") +
   xlab("Root depth") +
-  ggtitle(bacteria_evenness_plot_title)
+  ggtitle(bacteria_evenness_plot_title) +
+  theme(legend.position=c(0.65, 0.17),
+        legend.background = element_rect(linetype = 1, size = 0.5, colour = 1), 
+        legend.text = element_text(size=legend_text_size),
+        legend.title = element_text(size=legend_text_size))
 
 
 bacteria_phylo_d_rsq <- round(summary(bacteria_root_depth_phylo_d_lm)$adj.r.squared, digits=3)
 bacteria_phylo_d_f <- summary(bacteria_root_depth_phylo_d_lm)$fstatistic
 bacteria_phylo_d_p <- round(as.numeric(pf(bacteria_phylo_d_f[1], bacteria_phylo_d_f[2], bacteria_phylo_d_f[3], lower.tail=F)), digits=3)
 
-bacteria_phylo_d_plot_title <- bquote("Bacteria PD (Adj." ~ R^2~"=" ~ .(bacteria_phylo_d_rsq) ~ ", P=" ~ .(bacteria_phylo_d_p) ~ ")")
+#bacteria_phylo_d_plot_title <- bquote("Bacteria PD (Adj." ~ R^2~"=" ~ .(bacteria_phylo_d_rsq) ~ ", P=" ~ .(bacteria_phylo_d_p) ~ ")")
+bacteria_phylo_d_plot_title <- bquote("Bacteria PD")
 
 bacteria_phylo_d <- ggplot(aes(colour=Rootstock, x=root_depth, y=phylo_d), data=bacteria_alpha) +
   geom_quasirandom(size=5, width=0.1) +
@@ -124,13 +138,18 @@ bacteria_phylo_d <- ggplot(aes(colour=Rootstock, x=root_depth, y=phylo_d), data=
                geom="pointrange", color="black",  alpha=0.4) +
   ylab("Faith's Phylogenetic Diversity") +
   xlab("Root depth") +
-  ggtitle(bacteria_phylo_d_plot_title)
+  ggtitle(bacteria_phylo_d_plot_title) +
+  theme(legend.position=c(0.37, 0.17),
+        legend.background = element_rect(linetype = 1, size = 0.5, colour = 1), 
+        legend.text = element_text(size=legend_text_size),
+        legend.title = element_text(size=legend_text_size))
 
 fungi_richness_rsq <- round(summary(fungi_root_depth_richness_lm)$adj.r.squared, digits=3)
 fungi_richness_f <- summary(fungi_root_depth_richness_lm)$fstatistic
 fungi_richness_p <- round(as.numeric(pf(fungi_richness_f[1], fungi_richness_f[2], fungi_richness_f[3], lower.tail=F)), digits=3)
 
-fungi_richness_plot_title <- bquote("Fungi richness (Adj." ~ R^2~"=" ~ .(fungi_richness_rsq) ~ ", P=" ~ .(fungi_richness_p) ~ ")")
+#fungi_richness_plot_title <- bquote("Fungi richness (Adj." ~ R^2~"=" ~ .(fungi_richness_rsq) ~ ", P=" ~ .(fungi_richness_p) ~ ")")
+fungi_richness_plot_title <- bquote("Fungi richness")
 
 fungi_richness <- ggplot(aes(colour=Rootstock, x=root_depth, y=richness), data=fungi_alpha) +
   geom_quasirandom(size=5, width=0.1) +
@@ -138,7 +157,11 @@ fungi_richness <- ggplot(aes(colour=Rootstock, x=root_depth, y=richness), data=f
                geom="pointrange", color="black",  alpha=0.4) +
   ylab("Richness") +
   xlab("Root depth") +
-  ggtitle(fungi_richness_plot_title)
+  ggtitle(fungi_richness_plot_title) +
+  theme(legend.position=c(0.02, 0.17),
+        legend.background = element_rect(linetype = 1, size = 0.5, colour = 1), 
+        legend.text = element_text(size=legend_text_size),
+        legend.title = element_text(size=legend_text_size))
 
 
 
@@ -146,7 +169,8 @@ fungi_evenness_rsq <- round(summary(fungi_root_depth_evenness_lm)$adj.r.squared,
 fungi_evenness_f <- summary(fungi_root_depth_evenness_lm)$fstatistic
 fungi_evenness_p <- round(as.numeric(pf(fungi_evenness_f[1], fungi_evenness_f[2], fungi_evenness_f[3], lower.tail=F)), digits=3)
 
-fungi_evenness_plot_title <- bquote("Fungi evenness (Adj." ~ R^2~"=" ~ .(fungi_evenness_rsq) ~ ", P=" ~ .(fungi_evenness_p) ~ ")")
+#fungi_evenness_plot_title <- bquote("Fungi evenness (Adj." ~ R^2~"=" ~ .(fungi_evenness_rsq) ~ ", P=" ~ .(fungi_evenness_p) ~ ")")
+fungi_evenness_plot_title <- bquote("Fungi evenness")
 
 fungi_evenness <- ggplot(aes(colour=Rootstock, x=root_depth, y=evenness), data=fungi_alpha) +
   geom_quasirandom(size=5, width=0.1) +
@@ -154,14 +178,19 @@ fungi_evenness <- ggplot(aes(colour=Rootstock, x=root_depth, y=evenness), data=f
                geom="pointrange", color="black",  alpha=0.4) +
   ylab("Evenness") +
   xlab("Root depth") +
-  ggtitle(fungi_evenness_plot_title)
+  ggtitle(fungi_evenness_plot_title) +
+  theme(legend.position=c(0.65, 0.17),
+        legend.background = element_rect(linetype = 1, size = 0.5, colour = 1), 
+        legend.text = element_text(size=legend_text_size),
+        legend.title = element_text(size=legend_text_size))
 
 
 fungi_phylo_d_rsq <- round(summary(fungi_root_depth_phylo_d_lm)$adj.r.squared, digits=3)
 fungi_phylo_d_f <- summary(fungi_root_depth_phylo_d_lm)$fstatistic
 fungi_phylo_d_p <- round(as.numeric(pf(fungi_phylo_d_f[1], fungi_phylo_d_f[2], fungi_phylo_d_f[3], lower.tail=F)), digits=3)
 
-fungi_phylo_d_plot_title <- bquote("Fungi PD (Adj." ~ R^2~"=" ~ .(fungi_phylo_d_rsq) ~ ", P=" ~ .(fungi_phylo_d_p) ~ ")")
+#fungi_phylo_d_plot_title <- bquote("Fungi PD (Adj." ~ R^2~"=" ~ .(fungi_phylo_d_rsq) ~ ", P=" ~ .(fungi_phylo_d_p) ~ ")")
+fungi_phylo_d_plot_title <- bquote("Fungi PD")
 
 fungi_phylo_d <- ggplot(aes(colour=Rootstock, x=root_depth, y=phylo_d), data=fungi_alpha) +
   geom_quasirandom(size=5, width=0.1) +
@@ -169,7 +198,11 @@ fungi_phylo_d <- ggplot(aes(colour=Rootstock, x=root_depth, y=phylo_d), data=fun
                geom="pointrange", color="black",  alpha=0.4) +
   ylab("Faith's Phylogenetic Diversity") +
   xlab("Root depth") +
-  ggtitle(fungi_phylo_d_plot_title)
+  ggtitle(fungi_phylo_d_plot_title) +
+  theme(legend.position=c(0.02, 0.17),
+        legend.background = element_rect(linetype = 1, size = 0.5, colour = 1), 
+        legend.text = element_text(size=legend_text_size),
+        legend.title = element_text(size=legend_text_size))
 
 plot_grid(bacteria_richness, bacteria_evenness, bacteria_phylo_d,
           fungi_richness, fungi_evenness, fungi_phylo_d,
