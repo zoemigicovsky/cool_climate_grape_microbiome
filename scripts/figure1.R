@@ -44,7 +44,9 @@ min(colSums(bacteria_ASVs))
 # 4564
 
 # Rarefy table. Save this output table as RDS file to avoid re-running this step.
+# Do this for read depths of 1176 and 4564 (lower read depth to make sure the Venn diagram is comparable with Fungi).
 # Output RDS filepath:
+bacteria_ASVs_1176subsample_RDS <- paste("data/intermediate_RDS/bacteria_ASVs_1176subsample.rds")
 bacteria_ASVs_4564subsample_RDS <- paste("data/intermediate_RDS/bacteria_ASVs_4564subsample.rds")
 
 # # Code that should not be re-run every time:
@@ -56,15 +58,24 @@ bacteria_ASVs_4564subsample_RDS <- paste("data/intermediate_RDS/bacteria_ASVs_45
 # Read in RDS:
 bacteria_ASVs_4564subsample <- readRDS(bacteria_ASVs_4564subsample_RDS)
 
+#set.seed(1471)
+#bacteria_ASVs_1176subsample <- data.frame(t(rrarefy(x = t(bacteria_ASVs), sample=1176)), check.names=FALSE)
+#bacteria_ASVs_1176subsample <- bacteria_ASVs_1176subsample[-which(rowSums(bacteria_ASVs_1176subsample) == 0), ]
+#saveRDS(object = bacteria_ASVs_1176subsample, file = bacteria_ASVs_1176subsample_RDS)
+
+# Read in RDS:
+bacteria_ASVs_1176subsample <- readRDS(bacteria_ASVs_1176subsample_RDS)
+
 bacteria_taxa <- read.table("data/ASV_tables/bacteria/taxonomy.tsv",
                             header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
 bacteria_taxa_breakdown <- qiime2_taxa_breakdown(bacteria_taxa)
 
+# Note that the 1176 read subsample table was used to generate this Venn diagram.
 bacteria_sampletype_venn <- threeWayVennPercentGenus(metadata=bacteria_meta,
                                             meta_col="group",
-                                            asv_abun=bacteria_ASVs_4564subsample,
+                                            asv_abun=bacteria_ASVs_1176subsample,
                                             taxa_df=bacteria_taxa_breakdown,
                                             meta_cat=c("root", "root (cover)", "soil"),
                                             labels=c("Grape roots", "Cover crop\nroots", "Grape soil"),
