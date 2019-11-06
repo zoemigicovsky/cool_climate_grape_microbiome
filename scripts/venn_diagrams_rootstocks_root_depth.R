@@ -67,7 +67,7 @@ fungi_rootstock_venn <- threeWayVennPercentGenus(metadata=fungi_meta,
                                              labels=c("Ungrafted", "3309 C", "Riparia Gloire"),
                                              colours=c("#009E73", "#E69F00", "#56B4E9"))
 
-pdf("rootstock_venn_diagram.pdf", width=6.5, height=3, family="Arial")
+pdf("figures/rootstock_venn_diagram.pdf", width=6.5, height=3, family="Arial")
 plot_grid(grobTree(bacteria_rootstock_venn), grobTree(fungi_rootstock_venn), labels="AUTO", label_size=25)
 dev.off()
 
@@ -131,6 +131,6 @@ fungi_root_depth_venn <- threeWayVennPercentGenus(metadata=fungi_meta,
                                              labels=c("0-15 cm", "15-30 cm", "30-50 cm"),
                                              colours=c("#009E73", "#E69F00", "#56B4E9"))
 
-pdf("root_depth_venn_diagram.pdf", width=6.5, height=3, family="Arial")
+pdf("figures/root_depth_venn_diagram.pdf", width=6.5, height=3, family="Arial")
 plot_grid(grobTree(bacteria_root_depth_venn), grobTree(fungi_root_depth_venn), labels="AUTO", label_size=25)
 dev.off()
