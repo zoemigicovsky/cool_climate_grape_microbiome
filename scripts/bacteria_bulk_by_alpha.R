@@ -5,26 +5,23 @@ library(ggplot2)
 library(ggbeeswarm)
 library(Hmisc)
 
-setwd("/home/gavin/projects/zoe_microbiome/data/root_depth/")
+setwd("/home/gavin/github_repos/root_depth/data/")
 source("/home/gavin/github_repos/root_depth/scripts/root_depth_project_functions.R")
 
-bacteria_richness <- read.table("bacteria/diversity_no_chl_no_mit/observed_otus_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
-bacteria_evenness <- read.table("bacteria/diversity_no_chl_no_mit/evenness_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
-bacteria_phylo_d <- read.table("bacteria/diversity_no_chl_no_mit/faith_pd_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
-bacteria_shannon <- read.table("bacteria/diversity_no_chl_no_mit/shannon_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+bacteria_richness <- read.table("diversity_files/bacteria/diversity_no_chl_no_mit/observed_otus_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+bacteria_evenness <- read.table("diversity_files/bacteria/diversity_no_chl_no_mit/evenness_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+bacteria_phylo_d <- read.table("diversity_files/bacteria/diversity_no_chl_no_mit/faith_pd_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+bacteria_shannon <- read.table("diversity_files/bacteria/diversity_no_chl_no_mit/shannon_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
 
-fungi_richness <- read.table("fungi/diversity_no_chl_no_mit/observed_otus_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
-fungi_evenness <- read.table("fungi/diversity_no_chl_no_mit/evenness_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
-fungi_phylo_d <- read.table("fungi/diversity_no_chl_no_mit/faith_pd_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
-fungi_shannon <- read.table("fungi/diversity_no_chl_no_mit/shannon_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+fungi_richness <- read.table("diversity_files/fungi/diversity_no_chl_no_mit/observed_otus_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+fungi_evenness <- read.table("diversity_files/fungi/diversity_no_chl_no_mit/evenness_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+fungi_phylo_d <- read.table("diversity_files/fungi/diversity_no_chl_no_mit/faith_pd_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
+fungi_shannon <- read.table("diversity_files/fungi/diversity_no_chl_no_mit/shannon_vector_exported/alpha-diversity.tsv", header=TRUE, sep="\t", row.names=1)
 
-fungi_abun <- read.table("fungi/dada2_output_exported/feature-table_w_tax.txt", header=TRUE, row.names=1, comment.char="", skip=1, sep="\t")
-fungi_abun <- fungi_abun[, -which(colnames(fungi_abun) == "taxonomy")]
-
-bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata.tsv",
+bacteria_meta <- read.table("metadata/root_depth_bacteria_metadata.tsv",
                             header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
-fungi_meta <- read.table("fungi/root_depth_fungi_metadata.tsv",
+fungi_meta <- read.table("metadata/root_depth_fungi_metadata.tsv",
                          header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
 bacteria_meta_soil <- bacteria_meta[which(bacteria_meta$tissue == "soil"), c("rootstock", "root_depth")]
