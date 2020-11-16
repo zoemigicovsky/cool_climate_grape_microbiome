@@ -186,7 +186,7 @@ bacteria_asv_abun_relab_genus_sum_melt[which(bacteria_asv_abun_relab_genus_sum_m
 bacteria_asv_abun_relab_genus_sum_melt[which(bacteria_asv_abun_relab_genus_sum_melt$group == "soil"), "group"] <- "Grape soil"
 
 bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
-  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill", colour="black",size=0.3) +
   theme_bw() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
@@ -202,7 +202,7 @@ bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=group, 
   scale_y_continuous(labels = scales::percent)
 
 tmp_bacteria_stacked <- ggplot(bacteria_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
-  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill", colour="black",size=0.3) +
   theme_bw() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
@@ -285,7 +285,7 @@ fungi_asv_abun_relab_genus_sum_melt[which(fungi_asv_abun_relab_genus_sum_melt$gr
 fungi_asv_abun_relab_genus_sum_melt[which(fungi_asv_abun_relab_genus_sum_melt$group == "soil"), "group"] <- "Grape soil"
 
 fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
-  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill", colour="black",size=0.3) +
   theme_bw() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
@@ -302,8 +302,8 @@ fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=group, y=valu
 
 
 tmp_fungi_stacked <- ggplot(fungi_asv_abun_relab_genus_sum_melt, aes(x=group, y=value, fill=genus)) +
-  stat_summary(fun.y = sum, geom = "bar", position = "fill") +
-                            theme_bw() +
+  stat_summary(fun.y = sum, geom = "bar", position = "fill", colour="black",size=0.3) +
+  theme_bw() +
                             theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                                   panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
                             ylab("Relative Abundance (%)") +
@@ -325,7 +325,7 @@ tmp_fungi_stacked_legend <- tmp_fungi_stacked_grobs[[which(sapply(tmp_fungi_stac
 
 # Combine panels into single figure and write out figure.
 # Note that Arial font is commented out below since wouldn't work on the system used.
-pdf("figures/figure1.pdf", width=30, height=26)#, family="Arial")
+pdf("figures/figure1.pdf", width=30, height=26, family="Arial")
 first_row = plot_grid(grobTree(bacteria_sampletype_venn), grobTree(fungi_sampletype_venn), labels = c('A', 'B'), label_size=25)
 second_row = plot_grid(bacteria_stacked, tmp_bacteria_stacked_legend, fungi_stacked, tmp_fungi_stacked_legend, labels = c('C', '', 'D', ''),
                        nrow = 1, ncol=4, label_size=25, rel_widths = c(1, 1.25, 1, 1.25))
