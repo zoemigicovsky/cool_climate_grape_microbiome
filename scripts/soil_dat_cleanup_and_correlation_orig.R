@@ -1,21 +1,18 @@
-rm(list=ls(all.names=TRUE))
-
 library(readxl)
 library(tidyverse)
 library(broom)
-library(reshape2)
-library(RColorBrewer)
 
-setwd("/home/gavin/github_repos/root_depth/data/")
-source("../scripts/root_depth_project_functions.R")
+soil_dat <- read_excel("(2018) NYM rootstock depth trial all data updated.xlsx", skip = 4) %>% select("...3", pH, "Organic Matter":"Mg...14", "Na...19":H)
 
-# Commands used to parse the original excel file.
-# soil_dat <- read_excel("(2018) NYM rootstock depth trial all data updated.xlsx", skip = 4) %>% select("...3", pH, "Organic Matter":"Mg...14", "Na...19":H)
-# soil_dat <- soil_dat[-1,]
-# colnames(soil_dat) <- c("id", "ph", "organic_matter", "p2o5", "k2o",  "ca", "mg", "na", "s", "al", "b", "cu", "fe", "mn", "zn", "cec", "k_sat", "ca_sat", "mg_sat", "na_sat", "h_sat")
-# soil_dat <- soil_dat %>% filter( id != "NA")
-# soil_dat <- soil_dat %>% mutate(b=str_replace(b, "< 0.50","0.25"))
-# write.table(soil_dat, "soil_dat.tsv", sep="\t", row.names=F, quote=F, col.names=T)
+soil_dat <- soil_dat[-1,]
+
+colnames(soil_dat) <- c("id", "ph", "organic_matter", "p2o5", "k2o",  "ca", "mg", "na", "s", "al", "b", "cu", "fe", "mn", "zn", "cec", "k_sat", "ca_sat", "mg_sat", "na_sat", "h_sat")
+
+soil_dat <- soil_dat %>% filter( id != "NA")
+
+soil_dat <- soil_dat %>% mutate(b=str_replace(b, "< 0.50","0.25"))
+
+write.table(soil_dat, "soil_dat.tsv", sep="\t", row.names=F, quote=F, col.names=T)
 
 soil_dat <- read_tsv("soil_dat.tsv")
 
@@ -23,7 +20,7 @@ soil_dat <- read_tsv("soil_dat.tsv")
 
 #Alpha diversity
 
-alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -45,10 +42,10 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "tmp_working/bacteria_soil_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(spearman_results, "bacteria_soil_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Faith
-alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("bacteria/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -70,11 +67,11 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "tmp_working/bacteria_soil_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(spearman_results, "bacteria_soil_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Evenness
 
-alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("bacteria/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -96,68 +93,40 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "tmp_working/bacteria_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
-#Shannon
-
-alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/shannon_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
-
-#Reduce phenotype data down to samples with diversity metrics
-
-soil_bacteria <- soil_dat %>% rename(sample_id=id) %>% inner_join(alpha_diversity) %>% select(shannon, ph:h_sat)
-
-#Run correlations with soil_bacteria$faith_pd
-soil_cor <- apply(soil_bacteria[, -1], 2, cor.test, soil_bacteria$shannon, method="spearman")
-
-spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
-colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
-
-for(i in 1:length(soil_cor)){
-  spear_test <- tidy(soil_cor[[i]]) %>% mutate(pheno=names(soil_cor)[i])
-  spearman_results <- rbind(spearman_results, spear_test)
-}
-spearman_results <- spearman_results[-1,]
-spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
-
-#Multiple p-value by number of tests
-spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
-
-write.table(spearman_results, "tmp_working/bacteria_soil_shannon_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
+write.table(spearman_results, "bacteria_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Combine for a supplemental table 
 
-bacteria_evenness <- read_csv("tmp_working/bacteria_soil_evenness_diversity_spearman_results.csv") 
-bacteria_faith <- read_csv("tmp_working/bacteria_soil_faith_diversity_spearman_results.csv") 
-bacteria_richness <- read_csv("tmp_working/bacteria_soil_richness_diversity_spearman_results.csv") 
-bacteria_shannon <- read_csv("tmp_working/bacteria_soil_shannon_diversity_spearman_results.csv") 
+bacteria_evenness <- read_csv("bacteria_soil_evenness_diversity_spearman_results.csv") 
+bacteria_faith <- read_csv("bacteria_soil_faith_diversity_spearman_results.csv") 
+bacteria_richness <- read_csv("bacteria_soil_richness_diversity_spearman_results.csv") 
 
 bacteria_evenness <- bacteria_evenness %>% mutate(diversity_metric="evenness")
 bacteria_faith <- bacteria_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
 bacteria_richness <- bacteria_evenness %>% mutate(diversity_metric="richness")
-bacteria_shannon <- bacteria_shannon %>% mutate(diversity_metric="shannon")
 
-bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness, bacteria_shannon) %>% select(diversity_metric, pheno, estimate, p.value)
-write.table(bacteria_diversity, "alpha_div_cor/bacteria_soil_charactersitics_diversity_spearman.csv", sep=",", col.names = T, row.names=F, quote=F)
+bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness) %>% select(diversity_metric, pheno, estimate, p.value)
 
-
+write.table(bacteria_diversity, "bacteria_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 
 #Now do the same thing but with the main genera 
 
 #load in raw feature data 
+library(reshape2)
+library(tidyverse)
+library(RColorBrewer)
+source("root_depth_project_functions.R")
 
-bacteria_meta <- read.table("metadata/root_depth_bacteria_metadata.tsv",
+bacteria_meta <- read.table("bacteria/root_depth_bacteria_metadata_grape.tsv",
                             header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
-bacteria_meta <- bacteria_meta[which(bacteria_meta$species == "grape" & bacteria_meta$tissue == "root"), ]
-
-bacteria_ASVs <- read.table("ASV_tables/bacteria/feature-table_w_tax.txt",
+bacteria_ASVs <- read.table("bacteria/dada2_output_exported_grape//feature-table_w_tax.txt",
                             header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
-bacteria_ASVs <- bacteria_ASVs[, rownames(bacteria_meta)]
+bacteria_ASVs <- bacteria_ASVs[, -which(colnames(bacteria_ASVs) == "taxonomy")]
 
-bacteria_taxa <- read.table("ASV_tables/bacteria/taxonomy.tsv",
+bacteria_taxa <- read.table("bacteria/taxa/taxonomy.tsv",
                             header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
@@ -198,10 +167,12 @@ table(soil_bacteria[,1] == bacteria_asv_abun_genus_sum_top[,1])
 soil_bacteria <- soil_bacteria %>% select(-id)
 bacteria_asv_abun_genus_sum_top <- bacteria_asv_abun_genus_sum_top %>% select(-id)
 
-#convert abundances to numeric
+#convert abundances to numberic
 bacteria_asv_abun_genus_sum_top <- sapply(bacteria_asv_abun_genus_sum_top, as.numeric)
 
 #Run correlations
+library(tidyverse)
+library(broom)
 spearman_results <- data.frame(matrix(ncol = 7, nrow = 1))
 colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno", "bacteria"  )
 
@@ -223,12 +194,17 @@ spearman_results <- spearman_results %>% select(bacteria_genus=bacteria, pheno, 
   
 write.table(spearman_results, "bacteria_genus_soil_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
-
 #FUNGI ANALYSIS 
+
+library(readxl)
+library(tidyverse)
+library(broom)
+library(broom)
+
 soil_dat <- read_tsv("soil_dat.tsv")
 #Alpha diversity
 
-alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("fungi/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -250,10 +226,10 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "tmp_working/fungi_soil_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(spearman_results, "fungi_soil_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Faith
-alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("fungi/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -275,11 +251,11 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "tmp_working/fungi_soil_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(spearman_results, "fungi_soil_faith_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Evenness
 
-alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("fungi/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -301,72 +277,38 @@ spearman_results <- spearman_results %>% select(-method, -alternative, -statisti
 #Multiple p-value by number of tests
 spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
 
-write.table(spearman_results, "tmp_working/fungi_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
-
-#Shannon
-
-alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/shannon_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
-
-#Reduce phenotype data down to samples with diversity metrics
-
-soil_fungi <- soil_dat %>% rename(sample_id=id) %>% inner_join(alpha_diversity) %>% select(shannon, ph:h_sat)
-
-#Run correlations with soil_fungi$faith_pd
-soil_cor <- apply(soil_fungi[, -1], 2, cor.test, soil_fungi$shannon, method="spearman")
-
-spearman_results <- data.frame(matrix(ncol = 6, nrow = 1))
-colnames(spearman_results) <- c("estimate",  "statistic" ,  "p.value"  ,   "method"   ,   "alternative", "pheno"  )
-
-for(i in 1:length(soil_cor)){
-  spear_test <- tidy(soil_cor[[i]]) %>% mutate(pheno=names(soil_cor)[i])
-  spearman_results <- rbind(spearman_results, spear_test)
-}
-spearman_results <- spearman_results[-1,]
-spearman_results <- spearman_results %>% select(-method, -alternative, -statistic)
-
-#Multiple p-value by number of tests
-spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n = length(spearman_results$p.value))
-
-write.table(spearman_results, "tmp_working/fungi_soil_shannon_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
-
+write.table(spearman_results, "fungi_soil_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Combine for a supplemental table 
 
-fungi_evenness <- read_csv("tmp_working/fungi_soil_evenness_diversity_spearman_results.csv") 
-fungi_faith <- read_csv("tmp_working/fungi_soil_faith_diversity_spearman_results.csv") 
-fungi_richness <- read_csv("tmp_working/fungi_soil_richness_diversity_spearman_results.csv") 
-fungi_shannon <- read_csv("tmp_working/fungi_soil_shannon_diversity_spearman_results.csv") 
+fungi_evenness <- read_csv("fungi_soil_evenness_diversity_spearman_results.csv") 
+fungi_faith <- read_csv("fungi_soil_faith_diversity_spearman_results.csv") 
+fungi_richness <- read_csv("fungi_soil_richness_diversity_spearman_results.csv") 
 
 fungi_evenness <- fungi_evenness %>% mutate(diversity_metric="evenness")
 fungi_faith <- fungi_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
 fungi_richness <- fungi_evenness %>% mutate(diversity_metric="richness")
-fungi_shannon <- fungi_shannon %>% mutate(diversity_metric="shannon")
 
-fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness, fungi_shannon) %>% select(diversity_metric, pheno, estimate, p.value)
+fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness) %>% select(diversity_metric, pheno, estimate, p.value)
 
-write.table(fungi_diversity, "alpha_div_cor/fungi_soil_charactersitics_diversity_spearman.csv", sep=",", col.names = T, row.names=F, quote=F)
+write.table(fungi_diversity, "fungi_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 
 #Now do the same thing but with the main genera 
 
 #load in raw feature data 
+source("root_depth_project_functions.R")
 
-fungi_meta <- read.table("metadata/root_depth_fungi_metadata.tsv",
-                            header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
+fungi_meta <- read.table("fungi/root_depth_fungi_metadata_grape.tsv",
+                         header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
-fungi_meta <- fungi_meta[which(fungi_meta$species == "grape" & fungi_meta$tissue == "root"), ]
+fungi_ASVs <- read.table("fungi/dada2_output_exported_grape//feature-table_w_tax.txt",
+                         header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
 
-fungi_ASVs <- read.table("ASV_tables/fungi/feature-table_w_tax.txt",
-                            header=TRUE, skip=1, row.names=1, comment.char="", sep="\t")
+fungi_ASVs <- fungi_ASVs[, -which(colnames(fungi_ASVs) == "taxonomy")]
 
-fungi_meta <- fungi_meta[which(rownames(fungi_meta) %in% colnames(fungi_ASVs)), ]
-
-fungi_ASVs <- fungi_ASVs[, rownames(fungi_meta)]
-
-fungi_taxa <- read.table("ASV_tables/fungi/taxonomy.tsv",
-                            header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
+fungi_taxa <- read.table("fungi/taxa/taxonomy.tsv",
+                         header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
 fungi_taxa_breakdown <- UNITE_qiime2_taxa_breakdown(fungi_taxa)
@@ -437,6 +379,4 @@ spearman_results %>% filter(p.value <= 0.05)
 spearman_results <- spearman_results %>% select(fungi_genus=fungi, pheno, estimate, p.value)
 
 write.table(spearman_results, "fungi_genus_soil_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
-
 

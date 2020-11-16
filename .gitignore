@@ -6,6 +6,7 @@
 bacteria/*
 fungi/*
 
+data/tmp_working
 data/grape_root_sorted_relabun/all_levels_graperoot_metrics.xlsx
 scripts/characteristic_genera_and_AMF_relabun.Rmd
 scripts/characteristic_genera_and_AMF_relabun.html
