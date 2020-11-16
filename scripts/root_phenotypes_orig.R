@@ -4,13 +4,13 @@ library(tidyverse)
 library(broom)
 #Bacteria correlation with root phenotypes 
 
-setwd("/home/gavin/projects/zoe_microbiome/data/root_depth/")
+#setwd("/home/gavin/projects/zoe_microbiome/data/root_depth/")
 
-root_phenos <- read_tsv("/home/gavin/github_repos/root_depth/data/root_phenotypes.txt") %>% filter(!is.na(sample_id))
+root_phenos <- read_tsv("data/root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
 #Alpha diversity - richness 
 
-alpha_diversity <- read_tsv("bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("data/diversity_files/bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
