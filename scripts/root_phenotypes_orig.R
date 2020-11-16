@@ -1,12 +1,14 @@
+rm(list=ls(all.names=TRUE))
+
 library(tidyverse)
 library(broom)
 #Bacteria correlation with root phenotypes 
 
+setwd("/home/gavin/projects/zoe_microbiome/data/root_depth/")
+
 root_phenos <- read_tsv("/home/gavin/github_repos/root_depth/data/root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
 #Alpha diversity - richness 
-
-setwd("/home/gavin/projects/zoe_microbiome/data/root_depth/")
 
 alpha_diversity <- read_tsv("bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
@@ -94,7 +96,7 @@ bacteria_richness <- read_csv("bacteria_root_pheno_richness_diversity_spearman_r
 
 bacteria_evenness <- bacteria_evenness %>% mutate(diversity_metric="evenness")
 bacteria_faith <- bacteria_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
-bacteria_richness <- bacteria_evenness %>% mutate(diversity_metric="richness")
+bacteria_richness <- bacteria_richness %>% mutate(diversity_metric="richness")
 
 bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness) %>% select(diversity_metric, pheno, estimate, p.value)
 
@@ -102,7 +104,7 @@ write.table(bacteria_diversity, "bacteria_root_pheno_diversity_spearman_results.
 
 ###now do the same thing with fungi
 
-root_phenos <- read_tsv("root_phenotypes.txt") %>% filter(!is.na(sample_id))
+root_phenos <- read_tsv("data/root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
 #Alpha diversity - richness 
 
@@ -191,7 +193,7 @@ fungi_richness <- read_csv("fungi_root_pheno_richness_diversity_spearman_results
 
 fungi_evenness <- fungi_evenness %>% mutate(diversity_metric="evenness")
 fungi_faith <- fungi_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
-fungi_richness <- fungi_evenness %>% mutate(diversity_metric="richness")
+fungi_richness <- fungi_richness %>% mutate(diversity_metric="richness")
 
 fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness) %>% select(diversity_metric, pheno, estimate, p.value)
 
