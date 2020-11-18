@@ -4,13 +4,13 @@ library(tidyverse)
 library(broom)
 #Bacteria correlation with root phenotypes 
 
-#setwd("/home/gavin/projects/zoe_microbiome/data/root_depth/")
+setwd("/home/gavin/github_repos/root_depth/data/")
 
-root_phenos <- read_tsv("data/root_phenotypes.txt") %>% filter(!is.na(sample_id))
+root_phenos <- read_tsv("root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
 #Alpha diversity - richness 
 
-alpha_diversity <- read_tsv("data/diversity_files/bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -36,7 +36,7 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 write.table(spearman_results, "bacteria_root_pheno_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Evenness 
-alpha_diversity <- read_tsv("bacteria/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -62,7 +62,7 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 write.table(spearman_results, "bacteria_root_pheno_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Faiths 
-alpha_diversity <- read_tsv("bacteria/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("diversity_files/bacteria/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -104,11 +104,11 @@ write.table(bacteria_diversity, "bacteria_root_pheno_diversity_spearman_results.
 
 ###now do the same thing with fungi
 
-root_phenos <- read_tsv("data/root_phenotypes.txt") %>% filter(!is.na(sample_id))
+root_phenos <- read_tsv("root_phenotypes.txt") %>% filter(!is.na(sample_id))
 
 #Alpha diversity - richness 
 
-alpha_diversity <- read_tsv("fungi/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/observed_otus_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -134,7 +134,7 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 write.table(spearman_results, "fungi_root_pheno_richness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Evenness 
-alpha_diversity <- read_tsv("fungi/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/evenness_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -160,7 +160,7 @@ spearman_results$p.value <- p.adjust(spearman_results$p.value, method = "BH", n 
 write.table(spearman_results, "fungi_root_pheno_evenness_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
 
 #Faiths 
-alpha_diversity <- read_tsv("fungi/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
+alpha_diversity <- read_tsv("diversity_files/fungi/diversity_grape/faith_pd_vector_exported/alpha-diversity.tsv") %>% rename(sample_id=X1)
 
 #Reduce phenotype data down to samples with diversity metrics
 
@@ -200,5 +200,4 @@ fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness) %>% sele
 fungi_diversity %>% filter(p.value <0.05)
 
 write.table(fungi_diversity, "fungi_root_pheno_diversity_spearman_results.csv", sep=",", col.names = T, row.names=F, quote=F)
-
 
