@@ -134,7 +134,7 @@ bacteria_shannon <- read_csv("tmp_working/bacteria_soil_shannon_diversity_spearm
 
 bacteria_evenness <- bacteria_evenness %>% mutate(diversity_metric="evenness")
 bacteria_faith <- bacteria_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
-bacteria_richness <- bacteria_evenness %>% mutate(diversity_metric="richness")
+bacteria_richness <- bacteria_richness %>% mutate(diversity_metric="richness")
 bacteria_shannon <- bacteria_shannon %>% mutate(diversity_metric="shannon")
 
 bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness, bacteria_shannon) %>% select(diversity_metric, pheno, estimate, p.value)
@@ -341,7 +341,7 @@ fungi_shannon <- read_csv("tmp_working/fungi_soil_shannon_diversity_spearman_res
 
 fungi_evenness <- fungi_evenness %>% mutate(diversity_metric="evenness")
 fungi_faith <- fungi_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
-fungi_richness <- fungi_evenness %>% mutate(diversity_metric="richness")
+fungi_richness <- fungi_richness %>% mutate(diversity_metric="richness")
 fungi_shannon <- fungi_shannon %>% mutate(diversity_metric="shannon")
 
 fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness, fungi_shannon) %>% select(diversity_metric, pheno, estimate, p.value)
