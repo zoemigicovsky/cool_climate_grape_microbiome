@@ -2,7 +2,9 @@ library(readxl)
 library(tidyverse)
 library(broom)
 
-soil_dat <- read_excel("(2018) NYM rootstock depth trial all data updated.xlsx", skip = 4) %>% select("...3", pH, "Organic Matter":"Mg...14", "Na...19":H)
+setwd("data/")
+
+soil_dat <- read_excel("../(2018) NYM rootstock depth trial all data updated.xlsx", skip = 4) %>% select("...3", pH, "Organic Matter":"Mg...14", "Na...19":H)
 
 soil_dat <- soil_dat[-1,]
 
@@ -13,8 +15,6 @@ soil_dat <- soil_dat %>% filter( id != "NA")
 soil_dat <- soil_dat %>% mutate(b=str_replace(b, "< 0.50","0.25"))
 
 write.table(soil_dat, "soil_dat.tsv", sep="\t", row.names=F, quote=F, col.names=T)
-
-soil_dat <- read_tsv("soil_dat.tsv")
 
 #BACTERIA ANALYSIS 
 
@@ -103,7 +103,7 @@ bacteria_richness <- read_csv("bacteria_soil_richness_diversity_spearman_results
 
 bacteria_evenness <- bacteria_evenness %>% mutate(diversity_metric="evenness")
 bacteria_faith <- bacteria_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
-bacteria_richness <- bacteria_evenness %>% mutate(diversity_metric="richness")
+bacteria_richness <- bacteria_richness %>% mutate(diversity_metric="richness")
 
 bacteria_diversity <- bind_rows(bacteria_evenness,bacteria_faith,bacteria_richness) %>% select(diversity_metric, pheno, estimate, p.value)
 
@@ -126,7 +126,7 @@ bacteria_ASVs <- read.table("bacteria/dada2_output_exported_grape//feature-table
 
 bacteria_ASVs <- bacteria_ASVs[, -which(colnames(bacteria_ASVs) == "taxonomy")]
 
-bacteria_taxa <- read.table("bacteria/taxa/taxonomy.tsv",
+bacteria_taxa <- read.table("ASV_tables/bacteria/taxonomy.tsv",
                             header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
@@ -287,7 +287,7 @@ fungi_richness <- read_csv("fungi_soil_richness_diversity_spearman_results.csv")
 
 fungi_evenness <- fungi_evenness %>% mutate(diversity_metric="evenness")
 fungi_faith <- fungi_faith %>% mutate(diversity_metric="Faith's Phylogenetic Diversity")
-fungi_richness <- fungi_evenness %>% mutate(diversity_metric="richness")
+fungi_richness <- fungi_richness %>% mutate(diversity_metric="richness")
 
 fungi_diversity <- bind_rows(fungi_evenness,fungi_faith,fungi_richness) %>% select(diversity_metric, pheno, estimate, p.value)
 
@@ -299,7 +299,7 @@ write.table(fungi_diversity, "fungi_diversity_spearman_results.csv", sep=",", co
 #load in raw feature data 
 source("root_depth_project_functions.R")
 
-fungi_meta <- read.table("fungi/root_depth_fungi_metadata_grape.tsv",
+fungi_meta <- read.table("metadata/root_depth_fungi_metadata.tsv",
                          header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
 
 fungi_ASVs <- read.table("fungi/dada2_output_exported_grape//feature-table_w_tax.txt",
@@ -307,7 +307,7 @@ fungi_ASVs <- read.table("fungi/dada2_output_exported_grape//feature-table_w_tax
 
 fungi_ASVs <- fungi_ASVs[, -which(colnames(fungi_ASVs) == "taxonomy")]
 
-fungi_taxa <- read.table("fungi/taxa/taxonomy.tsv",
+fungi_taxa <- read.table("ASV_tables/fungi/taxonomy.tsv",
                          header=TRUE, sep="\t", row.names=1, comment.char="", stringsAsFactors = FALSE)
 
 # Note that the below function to get a dataframe of taxa labels at different levels was sourced from root_depth_project_functions.R.
