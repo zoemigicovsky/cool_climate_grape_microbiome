@@ -1,4 +1,4 @@
-# Grape microbiome root depth and rootstock AAFC project 
+# Grape microbiome root depth and rootstock microbiome project 
 
 This repository contains the key scripts and datafiles used for this manuscript: **A Characterization of the Grape Root Microbiome Across Rootstocks and Root Depth in a Cool Climate Organic Vineyard**.
 
