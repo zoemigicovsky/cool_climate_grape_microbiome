@@ -64,17 +64,17 @@ root_depth <- bacteria_meta[,"root_depth"]
 ### (note that the output files are saved so it's not necessary to re-run the commented out commands every time).
 
 ### Uncomment to run aldex2:
-# root_depth_aldex <- aldex.clr(bacteria_asv_aldex, root_depth,mc.samples = 128, verbose=T)
-# root_depth_aldex_kw <- aldex.kw(root_depth_aldex, verbose=T)
-# root_depth_aldex_kw <- cbind(rownames(root_depth_aldex_kw), root_depth_aldex_kw)
-# colnames(root_depth_aldex_kw)[1] <- "bacteria genus"
-# write.table(root_depth_aldex_kw, "data/ALDEx2_out/bacteria_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = F)
-# 
-# rootstock_aldex <- aldex.clr(bacteria_asv_aldex, rootstock, mc.samples = 128, verbose=T)
-# rootstock_aldex_kw <- aldex.kw(rootstock_aldex, verbose=T)
-# rootstock_aldex_kw <- cbind(rownames(rootstock_aldex_kw), rootstock_aldex_kw)
-# colnames(rootstock_aldex_kw)[1] <- "bacteria genus"
-# write.table(rootstock_aldex_kw, "data/ALDEx2_out/bacteria_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = F)
+root_depth_aldex <- aldex.clr(bacteria_asv_aldex, root_depth,mc.samples = 128, verbose=T)
+root_depth_aldex_kw <- aldex.kw(root_depth_aldex, verbose=T)
+root_depth_aldex_kw <- cbind(rownames(root_depth_aldex_kw), root_depth_aldex_kw)
+colnames(root_depth_aldex_kw)[1] <- "bacteria genus"
+write.table(root_depth_aldex_kw, "data/ALDEx2_out/bacteria_root_depth_aldex_kw.txt", sep="\t", quote=F, row.names = F)
+
+rootstock_aldex <- aldex.clr(bacteria_asv_aldex, rootstock, mc.samples = 128, verbose=T)
+rootstock_aldex_kw <- aldex.kw(rootstock_aldex, verbose=T)
+rootstock_aldex_kw <- cbind(rownames(rootstock_aldex_kw), rootstock_aldex_kw)
+colnames(rootstock_aldex_kw)[1] <- "bacteria genus"
+write.table(rootstock_aldex_kw, "data/ALDEx2_out/bacteria_rootstock_aldex_kw.txt", sep="\t", quote=F, row.names = F)
 
 
 #combine for supplemental table
